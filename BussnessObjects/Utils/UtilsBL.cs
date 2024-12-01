@@ -1,4 +1,5 @@
 ﻿using Faker;
+using Fare;
 using System.Text;
 
 namespace QAHackathon.BussnessObjects.Utils
@@ -17,13 +18,15 @@ namespace QAHackathon.BussnessObjects.Utils
         private static int emailLengthMin = 5;
         private static int emailLengthMax = 100;
 
+        private static int uuidLength = 36;
+
         public static string GeneratePassword()
         {
             var lowerCaseLetters = "abcdefghijklmnopqrstuvwxyz";
             var upperCaseLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
             var numbers = "0123456789";
             var specialCharacters = "!@#$%^&*()_+-=";
-            string allCharacters = lowerCaseLetters + upperCaseLetters + numbers + specialCharacters;
+            var allCharacters = lowerCaseLetters + upperCaseLetters + numbers + specialCharacters;
             Random random = new Random();
             var passwordLength = random.Next(passwordLengthMin, passwordLengthMax);
             StringBuilder password = new StringBuilder();
@@ -39,10 +42,24 @@ namespace QAHackathon.BussnessObjects.Utils
 
         public static string GenerateEmail()
         {
-            var emailLength = RandomNumber.Next(emailLengthMin, emailLengthMax);
-            var email = Internet.Email(GetRandomString(emailLength));
+            var i = 0;
+            var randomEmail = new Xeger(@"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$");
+            var currentEmail = randomEmail.Generate();
 
-            return email;
+            while(i < 10)
+            {
+                if (currentEmail.Length >= emailLengthMin && currentEmail.Length <= emailLengthMax)
+                {
+                    break;
+                }
+                else
+                {
+                    currentEmail = randomEmail.Generate();
+                    i++;
+                }
+            }
+
+            return currentEmail;
         }
 
         public static string GenerateName()
@@ -66,7 +83,7 @@ namespace QAHackathon.BussnessObjects.Utils
             var lowerCaseLetters = "abcdefghijklmnopqrstuvwxyz";
             var upperCaseLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-            string allCharacters = lowerCaseLetters + upperCaseLetters;
+            var allCharacters = lowerCaseLetters + upperCaseLetters;
             Random random = new Random();
             var stringLength = random.Next(minLength, maxLength);
             StringBuilder randomString = new StringBuilder();
@@ -78,6 +95,13 @@ namespace QAHackathon.BussnessObjects.Utils
             }
 
             return randomString.ToString();
+        }
+
+        public static string GetRandomUuid()
+        {
+            var uuid = new Xeger("[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}");
+
+            return uuid.Generate();
         }
     }
 }

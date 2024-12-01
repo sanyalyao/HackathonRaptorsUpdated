@@ -15,9 +15,9 @@ namespace QAHackathon.BussnessObjects.Utils
                 UtilsBL.GeneratePassword());
 
             loggingBL.Info($"Generated a new user. " +
-                $"Email:{user.Email}," +
-                $"Name:{user.Name}," +
-                $"Nickname:{user.Nickname}," +
+                $"Email:{user.Email}, " +
+                $"Name:{user.Name}, " +
+                $"Nickname:{user.Nickname}, " +
                 $"Password:{user.Password}");
 
             return user;

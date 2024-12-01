@@ -21,6 +21,7 @@ namespace QAHackathon.BussinesObjects.Services
         private readonly string taskIdDeleteUser = "api-1";
         private readonly string taskIdUpdateUserV1 = "api-4";
         private readonly string taskIdUpdateUserV2 = "api-24";
+        private readonly string taskIdGetUserByPassAndEmail = "api-7";
 
         private static string endpointAllUsers = baseEndpoint + "users";
         private string endpointUserByUuid = endpointAllUsers + "/{uuid}";
@@ -63,12 +64,13 @@ namespace QAHackathon.BussinesObjects.Services
             apiClient.AddOrUpdateXTaskId(request, taskIdGetUserByUuid);
 
             var response = apiClient.ExecuteWithoutException(request);
-            var error = JsonConvert.DeserializeObject<ErrorModel>(response.Content);
+            var error = new ErrorModel().GetError(response);
 
             AssertBL.AreEqual((int)StatusCodes.NotFound, (int)response.StatusCode);
+            AssertBL.AreEqual(error.Code, (int)response.StatusCode);
 
             loggingBL.Info($"Status code: {(int)response.StatusCode} - {response.StatusCode}");
-            loggingBL.Info("User does not exist");
+            loggingBL.Info(error.Message);
         }
 
         [AllureStep("Create a new user")]
@@ -116,6 +118,28 @@ namespace QAHackathon.BussinesObjects.Services
 
                 return JsonConvert.DeserializeObject<UserModel>(response.Content);
             });
+        }
+
+        [AllureStep("Update user")]
+        public RestResponse UpdateUserWithoutException(UserModel currentUser, Dictionary<string, string> sameUserWithChanges)
+        {
+            return Step($"Updating user with UUID - {currentUser.Uuid}", () =>
+            {
+                var request = new RestRequest(endpointUserByUuid, Method.Patch).AddUrlSegment("uuid", currentUser.Uuid);
+
+                apiClient.AddOrUpdateXTaskId(request, taskIdUpdateUserV1);
+                apiClient.AddBody(request, sameUserWithChanges);
+
+                var response = apiClient.ExecuteWithoutException(request);
+
+                return response;
+            });
+        }
+
+        [AllureStep("Get a user by password and Email")]
+        public void GetUserByPasswordAndEmail()
+        {
+
         }
     }
 }

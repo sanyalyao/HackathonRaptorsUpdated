@@ -1,9 +1,13 @@
 ﻿using Allure.Net.Commons;
+using NLog.LayoutRenderers;
 using NUnit.Allure.Attributes;
 using NUnit.Framework;
 using QAHackathon.BussinesObjects.Models;
+using QAHackathon.BussnessObjects.Models;
 using QAHackathon.BussnessObjects.Utils;
 using QAHackathon.Core.BussnessLogic;
+using QAHackathon.Core.RestCore;
+using System;
 using static QAHackathon.Core.BussnessLogic.StepsBL;
 
 namespace QAHackathon.TestCases
@@ -73,6 +77,7 @@ namespace QAHackathon.TestCases
             Step("Checking for the non-existent user", () => 
             {
                 userService.GetUserByUuidWithoutException(userForDeleting.Uuid);
+                loggingBL.Info("User does not exist");
             });
         }
 
@@ -159,6 +164,61 @@ namespace QAHackathon.TestCases
         }
 
         [Test]
+        [Description("Update non-existent user. Checking for error in response")]
+        [Category("API")]
+        [Category("User")]
+        [AllureSeverity(SeverityLevel.critical)]
+        public void UpdateNonExistentUser()
+        {
+            var response = Step("Updating non-existent user", () => 
+            {
+                var currentUser = new UserModel()
+                {
+                    Uuid = UtilsBL.GetRandomUuid()
+                };
+                var userWithChanges = new Dictionary<string, string>()
+                {
+                    { "name", UtilsBL.GenerateName() },
+                    { "nickname", UtilsBL.GenerateNickname() }
+                };
+
+                return userService.UpdateUserWithoutException(currentUser, userWithChanges);
+            });
+
+            Step("Checking for error in response", () => 
+            {
+                AssertBL.AreEqual((int)HttpStatusCodes.StatusCodes.NotFound, (int)response.StatusCode);
+                AssertBL.IsFalse(response.IsSuccessful);
+
+                var error = new ErrorModel().GetError(response);
+
+                loggingBL.Info($"There is error in response: {error.Code}");
+                loggingBL.Info(error.Message);
+            });
+        }
+
+        [Test]
+        [Description("")]
+        [Category("API")]
+        [Category("User")]
+        [AllureSeverity(SeverityLevel.critical)]
+        public void GetUserByPasswordAndEmail()
+        {
+            var users = Step("Getting all users", () =>
+            {
+                return userService.GetUsers();
+            });
+
+            Step("Getting random user by password and email", () => 
+            {
+                var usersCount = users.Users.Count;
+                var randomUser = users.Users.ToList()[new Random().Next(usersCount)];
+
+                var specialUser = userService.GetUserByPasswordAndEmail();
+            });
+        }
+
+        [Test]
         [Description("")]
         [Category("API")]
         [Category("Users")]
@@ -177,7 +237,7 @@ namespace QAHackathon.TestCases
              * проверяем что его нет в БД
              */
 
-            // 2 Done
+            // 2 DONE
             /*
              * create user
              * 
@@ -185,8 +245,8 @@ namespace QAHackathon.TestCases
              * проверяем что он создан
              */
 
-            // 3
-            /*
+            // 3 DONE
+            /* 
              * update user
              * 
              * get user
@@ -195,7 +255,7 @@ namespace QAHackathon.TestCases
              * check user
              */
 
-            // 4
+            // 4 DONE
             /*
              * проверка обновления несуществующего user
              * 

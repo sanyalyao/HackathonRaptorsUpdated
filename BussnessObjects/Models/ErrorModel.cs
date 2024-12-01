@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using RestSharp;
 
 namespace QAHackathon.BussnessObjects.Models
 {
@@ -10,5 +11,9 @@ namespace QAHackathon.BussnessObjects.Models
 
         [JsonProperty("message")]
         public string Message { get; set; }
+
+        public ErrorModel() { }
+
+        public ErrorModel GetError(RestResponse response) => JsonConvert.DeserializeObject<ErrorModel>(response.Content);
     }
 }
