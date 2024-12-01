@@ -1,7 +1,4 @@
-﻿using Allure.NUnit.Attributes;
-using QAHackathon.BussinesObjects.Models;
-using QAHackathon.Core.LoggingLogic;
-using static QAHackathon.Core.BussnessLogic.StepsBL;
+﻿using QAHackathon.Core.LoggingLogic;
 
 namespace QAHackathon.Core.BussnessLogic
 {
@@ -84,7 +81,6 @@ namespace QAHackathon.Core.BussnessLogic
             try
             {
                 NUnit.Framework.Assert.AreEqual(obj1, obj2);
-
                 loggingBL.Info($"{obj1} is equal to {obj2}");
             }
             catch (Exception ex)

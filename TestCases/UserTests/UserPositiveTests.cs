@@ -1,27 +1,23 @@
 ﻿using Allure.Net.Commons;
-using NLog.LayoutRenderers;
 using NUnit.Allure.Attributes;
 using NUnit.Framework;
-using QAHackathon.BussinesObjects.Models;
-using QAHackathon.BussnessObjects.Models;
 using QAHackathon.BussnessObjects.Utils;
 using QAHackathon.Core.BussnessLogic;
-using QAHackathon.Core.RestCore;
-using System;
 using static QAHackathon.Core.BussnessLogic.StepsBL;
 
-namespace QAHackathon.TestCases
+namespace QAHackathon.TestCases.UserTests
 {
-    public class UserTests : TestBase
+    public class UserPositiveTests : TestBase
     {
         [Test]
         [Description("Get list of users. Checking for response is not empty/null and success")]
         [Category("API")]
         [Category("Users")]
+        [Category("Positive")]
         [AllureSeverity(SeverityLevel.critical)]
         public void GetUsers()
         {
-            Step("Getting all users", () => 
+            Step("Getting all users", () =>
             {
                 userService.GetUsers();
             });
@@ -31,16 +27,16 @@ namespace QAHackathon.TestCases
         [Description("Get random user. Checking for response is not empty/null and success")]
         [Category("API")]
         [Category("Users")]
-        [Category("User")]
+        [Category("Positive")]
         [AllureSeverity(SeverityLevel.critical)]
         public void GetRandomUserByUuid()
         {
-            var users = Step("Getting all users", () => 
+            var users = Step("Getting all users", () =>
             {
                 return userService.GetUsers();
             });
 
-            Step("Getting random user", () => 
+            Step("Getting random user", () =>
             {
                 var usersCount = users.Users.Count;
                 var randomUser = users.Users.ToList()[new Random().Next(0, usersCount)];
@@ -55,7 +51,7 @@ namespace QAHackathon.TestCases
         [Description("Delete a user")]
         [Category("API")]
         [Category("Users")]
-        [Category("User")]
+        [Category("Positive")]
         [AllureSeverity(SeverityLevel.critical)]
         public void DeleteUser()
         {
@@ -69,12 +65,12 @@ namespace QAHackathon.TestCases
                 return createdUser;
             });
 
-            Step("Deleting the new user", () => 
+            Step("Deleting the new user", () =>
             {
                 userService.DeleteUser(userForDeleting.Uuid);
             });
 
-            Step("Checking for the non-existent user", () => 
+            Step("Checking for the non-existent user", () =>
             {
                 userService.GetUserByUuidWithoutException(userForDeleting.Uuid);
                 loggingBL.Info("User does not exist");
@@ -85,16 +81,16 @@ namespace QAHackathon.TestCases
         [Description("Create a mew user. Checking for response is not empty/null, success and the new user is created")]
         [Category("API")]
         [Category("Users")]
-        [Category("User")]
+        [Category("Positive")]
         [AllureSeverity(SeverityLevel.critical)]
         public void CreateUser()
         {
             var generatedUser = Step("Generating a new user with random parameters", () =>
             {
-                 return UserGenerator.GetNewUser();
+                return UserGenerator.GetNewUser();
             });
 
-            var createdUser = Step("Creating the new user", () => 
+            var createdUser = Step("Creating the new user", () =>
             {
                 var createdUser = userService.CreateNewUser(generatedUser);
 
@@ -118,7 +114,7 @@ namespace QAHackathon.TestCases
         [Description("Update user. Checking for response is not empty/null, success and user is updated")]
         [Category("API")]
         [Category("Users")]
-        [Category("User")]
+        [Category("Positive")]
         [AllureSeverity(SeverityLevel.critical)]
         public void UpdateUser()
         {
@@ -138,8 +134,8 @@ namespace QAHackathon.TestCases
             {
                 var userWithChanges = new Dictionary<string, string>()
                 {
-                    { "name", UtilsBL.GenerateName() },
-                    { "nickname", UtilsBL.GenerateNickname() }
+                    { "name", UtilsBL.GetCorrectName() },
+                    { "nickname", UtilsBL.GetCorrectNickname() }
                 };
 
                 loggingBL.Info($"New Name: {userWithChanges.First().Value} and Nickname: {userWithChanges.Last().Value}");
@@ -152,7 +148,7 @@ namespace QAHackathon.TestCases
                 return updatedUser;
             });
 
-            Step("Comparing previous user data with new user data", () => 
+            Step("Comparing previous user data with new user data", () =>
             {
                 AssertBL.AreEqual(currentUser.AvatarUrl, updatedUser.AvatarUrl);
                 AssertBL.AreEqual(currentUser.Email, updatedUser.Email);
@@ -164,47 +160,14 @@ namespace QAHackathon.TestCases
         }
 
         [Test]
-        [Description("Update non-existent user. Checking for error in response")]
+        [Description("Get a user by email and password. Checking for response is not empty/null and success")]
         [Category("API")]
-        [Category("User")]
-        [AllureSeverity(SeverityLevel.critical)]
-        public void UpdateNonExistentUser()
-        {
-            var response = Step("Updating non-existent user", () => 
-            {
-                var currentUser = new UserModel()
-                {
-                    Uuid = UtilsBL.GetRandomUuid()
-                };
-                var userWithChanges = new Dictionary<string, string>()
-                {
-                    { "name", UtilsBL.GenerateName() },
-                    { "nickname", UtilsBL.GenerateNickname() }
-                };
-
-                return userService.UpdateUserWithoutException(currentUser, userWithChanges);
-            });
-
-            Step("Checking for error in response", () => 
-            {
-                AssertBL.AreEqual((int)HttpStatusCodes.StatusCodes.NotFound, (int)response.StatusCode);
-                AssertBL.IsFalse(response.IsSuccessful);
-
-                var error = new ErrorModel().GetError(response);
-
-                loggingBL.Info($"There is error in response: {error.Code}");
-                loggingBL.Info(error.Message);
-            });
-        }
-
-        [Test]
-        [Description("")]
-        [Category("API")]
-        [Category("User")]
+        [Category("Users")]
+        [Category("Positive")]
         [AllureSeverity(SeverityLevel.critical)]
         public void GetUserByPasswordAndEmail()
         {
-            var newUser = Step("Creating a new users", () =>
+            var newUser = Step("Creating a new user", () =>
             {
                 var newUser = UserGenerator.GetNewUser();
 
@@ -213,12 +176,12 @@ namespace QAHackathon.TestCases
                 return newUser;
             });
 
-            var userFromApi = Step("Getting the user by password and email", () => 
+            var userFromApi = Step("Getting the user by password and email", () =>
             {
                 return userService.GetUserByPasswordAndEmail(newUser);
             });
 
-            Step("Checking for the created user equals to the user from API", () => 
+            Step("Checking for the created user equals to the user from API", () =>
             {
                 AssertBL.AreEqual(newUser.AvatarUrl, userFromApi.AvatarUrl);
                 AssertBL.AreEqual(newUser.Email, userFromApi.Email);
@@ -226,16 +189,6 @@ namespace QAHackathon.TestCases
                 AssertBL.AreEqual(newUser.Nickname, userFromApi.Nickname);
                 loggingBL.Info("Successfuly got the user by email and password");
             });
-        }
-
-        [Test]
-        [Description("")]
-        [Category("API")]
-        [Category("Users")]
-        [Category("User")]
-        [AllureSeverity(SeverityLevel.critical)]
-        public void Test()
-        {
         }
     }
 }

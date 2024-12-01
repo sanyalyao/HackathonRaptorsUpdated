@@ -77,7 +77,7 @@ namespace QAHackathon.BussinesObjects.Services
         [AllureStep("Create a new user")]
         public UserModel CreateNewUser(User newUser)
         {
-            loggingBL.Info($"Creating a new user");
+            loggingBL.Info("Creating a new user");
 
             var request = new RestRequest(endpointAllUsers, Method.Post);
 
@@ -87,6 +87,22 @@ namespace QAHackathon.BussinesObjects.Services
             var response = apiClient.Execute(request);
 
             return JsonConvert.DeserializeObject<UserModel>(response.Content);
+        }
+
+        [AllureStep("Create a new user")]
+        public RestResponse CreateNewUserWithoutException(User newUser)
+        {
+            return Step("Creating a new user", () =>
+            {
+                var request = new RestRequest(endpointAllUsers, Method.Post);
+
+                apiClient.AddOrUpdateXTaskId(request, taskIdCreateUser);
+                apiClient.AddBody(request, newUser);
+
+                var response = apiClient.ExecuteWithoutException(request);
+
+                return response;
+            });
         }
 
         [AllureStep("Delete user")]
@@ -155,6 +171,27 @@ namespace QAHackathon.BussinesObjects.Services
                 var response = apiClient.Execute(request);
 
                 return JsonConvert.DeserializeObject<UserModel>(response.Content);
+            });
+        }
+
+        [AllureStep("Get a user by nickname and password")]
+        public RestResponse GetUserByNicknameAndPassword(User user)
+        {
+            return Step($"Getting the user with Nickname: {user.Nickname} and Password: {user.Password}", () => 
+            {
+                var request = new RestRequest(endpointUserLogin, Method.Post);
+                var data = new Dictionary<string, string>()
+                {
+                    { "nickname", user.Nickname},
+                    { "password", user.Password}
+                };
+
+                apiClient.AddOrUpdateXTaskId(request, taskIdGetUserByPassAndEmail);
+                apiClient.AddBody(request, data);
+
+                var response = apiClient.ExecuteWithoutException(request);
+
+                return response;
             });
         }
     }
