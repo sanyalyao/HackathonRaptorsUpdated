@@ -6,11 +6,13 @@ using QAHackathon.BussnessObjects.Models;
 using QAHackathon.BussnessObjects.Utils;
 using QAHackathon.Core.BussnessLogic;
 using QAHackathon.Core.RestCore;
+using RestSharp;
 using System.Text.RegularExpressions;
 using static QAHackathon.Core.BussnessLogic.StepsBL;
 
 namespace QAHackathon.TestCases.UserTests
 {
+    [TestFixture]
     public class UserNegativeTests : TestBase
     {
         [Test]
@@ -21,27 +23,37 @@ namespace QAHackathon.TestCases.UserTests
         [AllureSeverity(SeverityLevel.critical)]
         public void UpdateNonExistentUser()
         {
-            var response = Step("Updating non-existent user", () =>
+            var user =  Step("Generating a user with fake UUID", () => 
             {
-                var currentUser = new UserModel()
+                var user = new UserModel()
                 {
                     Uuid = UtilsBL.GetRandomUuid()
                 };
+
+                loggingBL.Info($"Fake UUID: {user.Uuid}");
+
+                return user;
+            });
+
+            var response = Step("Updating non-existent user", () =>
+            {
                 var userWithChanges = new Dictionary<string, string>()
                 {
                     { "name", UtilsBL.GetCorrectName() },
                     { "nickname", UtilsBL.GetCorrectNickname() }
                 };
 
-                return userService.UpdateUserWithoutException(currentUser, userWithChanges);
+                return userService.UpdateUserWithoutException(user, userWithChanges);
             });
 
             Step("Checking for error in response", () =>
             {
+                var error = new ErrorModel().GetError(response);
+                var isMatch = new Regex($"Could not find user with \"uuid\": {user.Uuid}").Match(error.Message);
+
                 AssertBL.AreEqual((int)HttpStatusCodes.StatusCodes.NotFound, (int)response.StatusCode);
                 AssertBL.IsFalse(response.IsSuccessful);
-
-                var error = new ErrorModel().GetError(response);
+                AssertBL.IsTrue(isMatch.Success);
 
                 loggingBL.Info($"There is error in response: {error.Code}");
                 loggingBL.Info(error.Message);
@@ -72,10 +84,12 @@ namespace QAHackathon.TestCases.UserTests
 
             Step("Checking for error in response", () =>
             {
+                var error = new ErrorModel().GetError(response);
+                var isMatch = new Regex(".*property \"email\" is missing.*").Match(error.Message);
+
                 AssertBL.AreEqual((int)HttpStatusCodes.StatusCodes.BadRequest, (int)response.StatusCode);
                 AssertBL.IsFalse(response.IsSuccessful);
-
-                var error = new ErrorModel().GetError(response);
+                AssertBL.IsTrue(isMatch.Success);
 
                 loggingBL.Info($"There is error in response: {error.Code}");
                 loggingBL.Info(error.Message);
@@ -95,7 +109,7 @@ namespace QAHackathon.TestCases.UserTests
                 return UserGenerator.GetNewUserWithIncorrectEmailFormat();
             });            
 
-            var response = Step("Creating a new user with incorrect email", () => 
+            var response = Step("Registering a new user with incorrect email", () => 
             {
                 return userService.CreateNewUserWithoutException(userIncorrectEmail);
             });
@@ -127,7 +141,7 @@ namespace QAHackathon.TestCases.UserTests
                 return UserGenerator.GetUserIncorrectEmailLength(UserGenerator.Lengths.Max);
             });
 
-            var response = Step("Creating a new user with incorrect max email length", () =>
+            var response = Step("Registering a new user with incorrect max email length", () =>
             {
                 return userService.CreateNewUserWithoutException(userIncorrectEmailMaxLength);
             });
@@ -164,7 +178,7 @@ namespace QAHackathon.TestCases.UserTests
                 return newUser;
             });
 
-            var response = Step("Creating a new user with incorrect min email length", () =>
+            var response = Step("Registering a new user with incorrect min email length", () =>
             {
                 return userService.CreateNewUserWithoutException(userIncorrectEmailMinLength);
             });
@@ -201,7 +215,7 @@ namespace QAHackathon.TestCases.UserTests
                 return newUser;
             });
 
-            var response = Step("Creating a new user with incorrect min email length", () =>
+            var response = Step("Registering a new user with incorrect min email length", () =>
             {
                 return userService.CreateNewUserWithoutException(userIncorrectEmailMinLength);
             });
@@ -237,7 +251,7 @@ namespace QAHackathon.TestCases.UserTests
                 return newUser;
             });
 
-            var response = Step("Creating a new user with incorrect min email length", () =>
+            var response = Step("Registering a new user with incorrect min email length", () =>
             {
                 return userService.CreateNewUserWithoutException(userIncorrectEmailMinLength);
             });
@@ -253,6 +267,63 @@ namespace QAHackathon.TestCases.UserTests
 
                 loggingBL.Info($"There is error in response: {error.Code}");
                 loggingBL.Info(error.Message);
+            });
+        }
+
+        [Test]
+        [Description("Update a user with incorrect null data. Checking for error response")]
+        [Category("API")]
+        [Category("Users")]
+        [Category("Negative")]
+        [AllureSeverity(SeverityLevel.critical)]
+        public void UpdateUserWithIncorrectData()
+        {
+            var responses = Step("Updating a user with incorrect null data", () =>
+            {
+                var currentUser = userService.GetUsers().Users.ToList().First();
+
+                var userWithNullName = new Dictionary<string, string>()
+                {
+                    { "name", null }
+                };
+
+                var userWithNullNickname = new Dictionary<string, string>()
+                {
+                    { "nickname", null }
+                };
+
+                var userWithNullEmail = new Dictionary<string, string>()
+                {
+                    { "email", null }
+                };
+
+                var userWithNullPassword = new Dictionary<string, string>()
+                {
+                    { "password", null }
+                };
+
+                var responses = new List<RestResponse>() { userService.UpdateUserWithoutException(currentUser, userWithNullName),
+                    userService.UpdateUserWithoutException(currentUser, userWithNullNickname),
+                    userService.UpdateUserWithoutException(currentUser, userWithNullEmail),
+                    userService.UpdateUserWithoutException(currentUser, userWithNullPassword) };
+
+                return responses;
+            });
+
+            Step("Checking for error in responses", () =>
+            {
+                foreach (var response in responses)
+                {
+                    var error = new ErrorModel().GetError(response);
+                    var isMatch = new Regex(".*Value is not nullable.*").Match(error.Message);
+
+                    AssertBL.AreEqual((int)HttpStatusCodes.StatusCodes.BadRequest, (int)response.StatusCode);
+                    AssertBL.IsFalse(response.IsSuccessful);
+                    AssertBL.IsTrue(isMatch.Success);
+
+                    loggingBL.Info($"There is error in each response: {error.Code}");
+                    loggingBL.Info(error.Message);
+                }
             });
         }
     }

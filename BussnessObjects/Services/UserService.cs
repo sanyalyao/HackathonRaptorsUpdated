@@ -17,15 +17,17 @@ namespace QAHackathon.BussinesObjects.Services
         private readonly string taskIdGetAllUsersV1 = "api-6";
         private readonly string taskIdGetAllUsersV2 = "api-21";
         private readonly string taskIdGetUserByUuid = "api-23";
-        private readonly string taskIdCreateUser = "api-3";
+        private readonly string taskIdCreateUserV1 = "api-3";
+        private readonly string taskIdCreateUserV2 = "api-22";
         private readonly string taskIdDeleteUser = "api-1";
         private readonly string taskIdUpdateUserV1 = "api-4";
         private readonly string taskIdUpdateUserV2 = "api-24";
         private readonly string taskIdGetUserByPassAndEmail = "api-7";
 
         private static string endpointAllUsers = baseEndpoint + "users";
+        private static string endpointAllUsersWithLimit = endpointAllUsers;
         private string endpointUserByUuid = endpointAllUsers + "/{uuid}";
-        private string endpointUserLogin = endpointAllUsers + "/login";
+        private string endpointUserLogin = endpointAllUsers + "/login";        
 
         [AllureStep("Get list of users")]
         public UsersModel GetUsers()
@@ -33,6 +35,20 @@ namespace QAHackathon.BussinesObjects.Services
             loggingBL.Info("Getting list of users");
 
             var request = new RestRequest(endpointAllUsers);
+
+            apiClient.AddOrUpdateXTaskId(request, taskIdGetAllUsersV1);
+
+            var response = apiClient.Execute(request);
+
+            return JsonConvert.DeserializeObject<UsersModel>(response.Content);
+        }
+
+        [AllureStep("Get list of users with limit")]
+        public UsersModel GetUsers(int limit)
+        {
+            loggingBL.Info($"Getting list of users with limit = {limit}");
+
+            var request = new RestRequest(endpointAllUsersWithLimit).AddParameter("limit", limit);
 
             apiClient.AddOrUpdateXTaskId(request, taskIdGetAllUsersV1);
 
@@ -81,7 +97,7 @@ namespace QAHackathon.BussinesObjects.Services
 
             var request = new RestRequest(endpointAllUsers, Method.Post);
 
-            apiClient.AddOrUpdateXTaskId(request, taskIdCreateUser);
+            apiClient.AddOrUpdateXTaskId(request, taskIdCreateUserV2);
             apiClient.AddBody(request, newUser);
 
             var response = apiClient.Execute(request);
@@ -96,7 +112,7 @@ namespace QAHackathon.BussinesObjects.Services
             {
                 var request = new RestRequest(endpointAllUsers, Method.Post);
 
-                apiClient.AddOrUpdateXTaskId(request, taskIdCreateUser);
+                apiClient.AddOrUpdateXTaskId(request, taskIdCreateUserV1);
                 apiClient.AddBody(request, newUser);
 
                 var response = apiClient.ExecuteWithoutException(request);

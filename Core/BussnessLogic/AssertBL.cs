@@ -76,18 +76,18 @@ namespace QAHackathon.Core.BussnessLogic
             }
         }
 
-        public static void AreEqual(object obj1, object obj2)
+        public static void AreEqual(object expected, object actual)
         {
             try
             {
-                NUnit.Framework.Assert.AreEqual(obj1, obj2);
-                loggingBL.Info($"{obj1} is equal to {obj2}");
+                NUnit.Framework.Assert.AreEqual(expected, actual);
+                loggingBL.Info($"{expected} is equal to {actual}");
             }
             catch (Exception ex)
             {
                 loggingBL.Error(ex);
 
-                throw new Exception("Objects are not equal");
+                throw new Exception($"{expected} is not equal to {actual}");
             }
         }
 

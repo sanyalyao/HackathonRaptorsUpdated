@@ -1,4 +1,7 @@
 ﻿using NUnit.Framework;
+using Newtonsoft.Json;
+using System;
+
 
 namespace QAHackathon.Core.RunSettings
 {
@@ -8,6 +11,8 @@ namespace QAHackathon.Core.RunSettings
         public string devEndpoint;
         public string email;
         public string environment;
+        public bool setupEnvironmentRelease;
+        public bool setupEnvironmentDev;
 
         public SetUpSettings()
         {
@@ -15,6 +20,19 @@ namespace QAHackathon.Core.RunSettings
             devEndpoint = TestContext.Parameters.Get("DevEndpoint");
             email = TestContext.Parameters.Get("Email");
             environment = TestContext.Parameters.Get("Environment");
+        }
+
+        public SetupModel GetSetupSettings()
+        {
+            var config = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Core/RunSettings", "config.json"));
+
+            return JsonConvert.DeserializeObject<SetupModel>(config);
+        }
+
+        public void ChangeSetupConfig(SetupModel setupModel)
+        {
+            var newConfig = JsonConvert.SerializeObject(setupModel, Formatting.Indented);
+            File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Core/RunSettings", "config.json"), newConfig);
         }
     }
 }

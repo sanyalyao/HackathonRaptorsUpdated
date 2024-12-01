@@ -7,6 +7,7 @@ using static QAHackathon.Core.BussnessLogic.StepsBL;
 
 namespace QAHackathon.TestCases.UserTests
 {
+    [TestFixture]
     public class UserPositiveTests : TestBase
     {
         [Test]
@@ -17,9 +18,47 @@ namespace QAHackathon.TestCases.UserTests
         [AllureSeverity(SeverityLevel.critical)]
         public void GetUsers()
         {
-            Step("Getting all users", () =>
+            var users = Step("Getting all users", () =>
             {
-                userService.GetUsers();
+                return userService.GetUsers();
+            });
+
+            Step("Checking for first response is correct", () => 
+            {
+                var usersCount = users.Meta.Total;
+                var usersList = users.Users;
+
+                AssertBL.IsTrue(usersList.ToList().Any());
+                AssertBL.IsTrue(usersCount >= 1);
+            });
+        }
+
+        [Test]
+        [Description("Get list of users with limit. Checking for response is not empty/null and success")]
+        [Category("API")]
+        [Category("Users")]
+        [Category("Positive")]
+        [AllureSeverity(SeverityLevel.critical)]
+        public void GetUsersWithLimit()
+        {
+            var users = Step("Getting all users", () =>
+            {
+                return userService.GetUsers();
+            });
+
+            var listUserWith = Step("Getting all users with limit", () =>
+            {
+                return userService.GetUsers(users.Meta.Total);
+            });
+
+            Step("Checking for response with limit is correct", () =>
+            {
+                var usersCount = listUserWith.Meta.Total;
+                var usersList = listUserWith.Users;
+
+                AssertBL.IsTrue(usersList.ToList().Any());
+                AssertBL.IsTrue(usersCount >= 1);
+                AssertBL.AreEqual(usersCount, usersList.Count);
             });
         }
 
@@ -78,6 +117,46 @@ namespace QAHackathon.TestCases.UserTests
         }
 
         [Test]
+        [Description("Delete random user")]
+        [Category("API")]
+        [Category("Users")]
+        [Category("Positive")]
+        [AllureSeverity(SeverityLevel.critical)]
+        public void DeleteRandomUser()
+        {
+            var users = Step("Getting all users", () =>
+            {
+                return userService.GetUsers();
+            });
+
+            var usersCount = users.Meta.Total;
+
+            var deletedUser = Step("Deleting random user", () =>
+            {
+                var randomUser = users.Users.ToList()[new Random().Next(users.Users.Count)];
+
+                userService.DeleteUser(randomUser.Uuid);
+
+                return randomUser;
+            });
+
+            Step("Checking for the amount of users has decreased by one", () => 
+            { 
+                var currentUsersCount = userService.GetUsers().Meta.Total;
+
+                AssertBL.AreEqual(usersCount - 1, currentUsersCount);
+
+                loggingBL.Info("The amount of users has decreased by one");
+            });
+
+            Step("Checking for the non-existent user", () =>
+            {
+                userService.GetUserByUuidWithoutException(deletedUser.Uuid);
+                loggingBL.Info("User does not exist");
+            });
+        }
+
+        [Test]
         [Description("Create a mew user. Checking for response is not empty/null, success and the new user is created")]
         [Category("API")]
         [Category("Users")]
@@ -87,7 +166,11 @@ namespace QAHackathon.TestCases.UserTests
         {
             var generatedUser = Step("Generating a new user with random parameters", () =>
             {
-                return UserGenerator.GetNewUser();
+                var generatedUser = UserGenerator.GetNewUser();
+
+                generatedUser.Show();
+
+                return generatedUser;
             });
 
             var createdUser = Step("Creating the new user", () =>
@@ -130,14 +213,15 @@ namespace QAHackathon.TestCases.UserTests
                 return randomUser;
             });
 
+            var userWithChanges = new Dictionary<string, string>()
+            {
+                { "name", UtilsBL.GetCorrectName() },
+                { "nickname", UtilsBL.GetCorrectNickname() },
+                { "email", UtilsBL.GetCorrectEmail() }
+            };
+
             var updatedUser = Step("Updating user with", () =>
             {
-                var userWithChanges = new Dictionary<string, string>()
-                {
-                    { "name", UtilsBL.GetCorrectName() },
-                    { "nickname", UtilsBL.GetCorrectNickname() }
-                };
-
                 loggingBL.Info($"New Name: {userWithChanges.First().Value} and Nickname: {userWithChanges.Last().Value}");
 
                 var updatedUser = userService.UpdateUser(currentUser, userWithChanges);
@@ -151,10 +235,13 @@ namespace QAHackathon.TestCases.UserTests
             Step("Comparing previous user data with new user data", () =>
             {
                 AssertBL.AreEqual(currentUser.AvatarUrl, updatedUser.AvatarUrl);
-                AssertBL.AreEqual(currentUser.Email, updatedUser.Email);
                 AssertBL.AreEqual(currentUser.Uuid, updatedUser.Uuid);
+                AssertBL.AreEqual(userWithChanges.First().Value, updatedUser.Name);
+                AssertBL.AreEqual(userWithChanges["nickname"], updatedUser.Nickname);
+                AssertBL.AreEqual(userWithChanges.Last().Value, updatedUser.Email);
                 AssertBL.AreNotEqual(currentUser.Name, updatedUser.Name);
                 AssertBL.AreNotEqual(currentUser.Nickname, updatedUser.Nickname);
+                AssertBL.AreNotEqual(currentUser.Email, updatedUser.Email);
                 loggingBL.Info("User was updated successfuly");
             });
         }

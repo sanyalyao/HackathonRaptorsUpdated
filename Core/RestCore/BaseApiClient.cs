@@ -1,5 +1,5 @@
-﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
-using QAHackathon.BussinesObjects.Models;
+﻿using QAHackathon.BussinesObjects.Models;
+using QAHackathon.BussnessObjects.Models;
 using QAHackathon.Core.BussnessLogic;
 using QAHackathon.Core.LoggingLogic;
 using QAHackathon.Core.RunSettings;
@@ -30,14 +30,23 @@ namespace QAHackathon.Core.RestCore
 
         public RestResponse Execute(RestRequest request)
         {
+            var endpoint = GetAbsoluteUri(request);
+
             loggingBL.Info("Processing request");
-            loggingBL.Info($"Endpoint - {GetAbsoluteUri(request)}");
+            loggingBL.Info($"Endpoint - {endpoint}");
 
             var response = restClient.Execute(request);
 
             loggingBL.Trace(response.Content);
 
-            CheckSuccessResponse(response);
+            if (endpoint.Contains("/setup"))
+            {
+                CheckSuccessResponse(response, true);
+            }
+            else
+            {
+                CheckSuccessResponse(response);
+            }
 
             return response;
         }
@@ -76,15 +85,30 @@ namespace QAHackathon.Core.RestCore
             request.AddOrUpdateHeader(name, value);
         }
 
-        private void CheckSuccessResponse(RestResponse response)
+        private void CheckSuccessResponse(RestResponse response, bool setup = false)
         {
             loggingBL.Info("Checking response");
-            AssertBL.IsTrue(response.IsSuccessful);
-            AssertBL.IsNotEmpty(response.Content);
-            AssertBL.IsNotNull(response);
 
-            loggingBL.Info("Response is not empty");
-            loggingBL.Info($"Success Status Code: {(int)response.StatusCode} - {response.StatusCode}");
+            if (response.IsSuccessful)
+            {
+                if (!setup)
+                {
+                    AssertBL.IsNotEmpty(response.Content);
+                    AssertBL.IsNotNull(response);
+                }
+
+                loggingBL.Info("Response is not empty");
+                loggingBL.Info($"Success Status Code: {(int)response.StatusCode} - {response.StatusCode}");
+            }
+            else
+            {
+                var error = new ErrorModel().GetError(response);
+
+                loggingBL.Info($"There is error in response: {error.Code}");
+                loggingBL.Info(error.Message);
+
+                throw new Exception(error.Message);
+            }
         }
     }
 }

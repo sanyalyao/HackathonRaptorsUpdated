@@ -1,0 +1,4 @@
+{
+	"setupEnvironmentRelease": { "setup" : false },
+	"setupEnvironmentDev": { "setup": false }
+}

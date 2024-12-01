@@ -4,6 +4,6 @@
 		<Parameter name="ReleaseEndpoint" value="https://release-gs.qa-playground.com/api/v1/" />
 		<Parameter name="DevEndpoint" value="https://dev-gs.qa-playground.com/api/v1/" />
 		<Parameter name="Email" value="aiovzhy@yandex.ru"/>
-		<Parameter name="Environment" value="release"/>
+		<Parameter name="Environment" value="dev"/>
 	</TestRunParameters>
 </RunSettings>

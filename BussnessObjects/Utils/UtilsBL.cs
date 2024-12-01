@@ -66,7 +66,7 @@ namespace QAHackathon.BussnessObjects.Utils
         public static string GetRandomUuid()
         {
             var uuid = new Xeger("[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}");
-            return uuid.Generate();
+            return uuid.Generate().ToLower();
         }
 
         #region private
