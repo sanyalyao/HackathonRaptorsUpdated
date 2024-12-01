@@ -25,6 +25,7 @@ namespace QAHackathon.BussinesObjects.Services
 
         private static string endpointAllUsers = baseEndpoint + "users";
         private string endpointUserByUuid = endpointAllUsers + "/{uuid}";
+        private string endpointUserLogin = endpointAllUsers + "/login";
 
         [AllureStep("Get list of users")]
         public UsersModel GetUsers()
@@ -137,9 +138,24 @@ namespace QAHackathon.BussinesObjects.Services
         }
 
         [AllureStep("Get a user by password and Email")]
-        public void GetUserByPasswordAndEmail()
+        public UserModel GetUserByPasswordAndEmail(User user)
         {
+            return Step($"Getting the user with Email: {user.Email} and Password: {user.Password}", () => 
+            {
+                var request = new RestRequest(endpointUserLogin, Method.Post);
+                var data = new Dictionary<string, string>() 
+                {
+                    { "email", user.Email},
+                    { "password", user.Password}
+                };
 
+                apiClient.AddOrUpdateXTaskId(request, taskIdGetUserByPassAndEmail);
+                apiClient.AddBody(request, data);
+
+                var response = apiClient.Execute(request);
+
+                return JsonConvert.DeserializeObject<UserModel>(response.Content);
+            });
         }
     }
 }

@@ -204,17 +204,27 @@ namespace QAHackathon.TestCases
         [AllureSeverity(SeverityLevel.critical)]
         public void GetUserByPasswordAndEmail()
         {
-            var users = Step("Getting all users", () =>
+            var newUser = Step("Creating a new users", () =>
             {
-                return userService.GetUsers();
+                var newUser = UserGenerator.GetNewUser();
+
+                userService.CreateNewUser(newUser);
+
+                return newUser;
             });
 
-            Step("Getting random user by password and email", () => 
+            var userFromApi = Step("Getting the user by password and email", () => 
             {
-                var usersCount = users.Users.Count;
-                var randomUser = users.Users.ToList()[new Random().Next(usersCount)];
+                return userService.GetUserByPasswordAndEmail(newUser);
+            });
 
-                var specialUser = userService.GetUserByPasswordAndEmail();
+            Step("Checking for the created user equals to the user from API", () => 
+            {
+                AssertBL.AreEqual(newUser.AvatarUrl, userFromApi.AvatarUrl);
+                AssertBL.AreEqual(newUser.Email, userFromApi.Email);
+                AssertBL.AreEqual(newUser.Name, userFromApi.Name);
+                AssertBL.AreEqual(newUser.Nickname, userFromApi.Nickname);
+                loggingBL.Info("Successfuly got the user by email and password");
             });
         }
 
@@ -226,87 +236,6 @@ namespace QAHackathon.TestCases
         [AllureSeverity(SeverityLevel.critical)]
         public void Test()
         {
-            // 1 DONE
-            /*
-             * delete user
-             * 
-             * создаём user
-             * проверяем что он создан
-             * 
-             * удаляем ранее созданного user
-             * проверяем что его нет в БД
-             */
-
-            // 2 DONE
-            /*
-             * create user
-             * 
-             * создаём user
-             * проверяем что он создан
-             */
-
-            // 3 DONE
-            /* 
-             * update user
-             * 
-             * get user
-             * generate new data
-             * do patch user
-             * check user
-             */
-
-            // 4 DONE
-            /*
-             * проверка обновления несуществующего user
-             * 
-             * без некорректных символов
-             * 
-             * проверка наличия ошибки
-             */
-
-            // 5
-            /*
-             * Get a user by email and password
-             * 
-             * получаем нужного user by email and password
-             * 
-             */
-
-            // 6
-            /*
-             * Get a user by email and password
-             * 
-             * получаем user not by email and password
-             * 
-             * проверка наличия ошибки
-             */
-
-            // 7
-            /*
-             * create user
-             * 
-             * создать user с неверной почтой
-             * 
-             * проверка наличия ошибки
-             */
-
-            // 8
-            /*
-             * проверка обновления существующего user
-             * 
-             * с некорректными символами
-             * 
-             * проверка наличия ошибки
-             */
-
-            // 9
-            /*
-             * create user
-             * 
-             * с некорректными символами
-             * 
-             * проверка наличия ошибки
-             */
         }
     }
 }
