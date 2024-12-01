@@ -1,4 +1,5 @@
-﻿using QAHackathon.BussinesObjects.Models;
+﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
+using QAHackathon.BussinesObjects.Models;
 using QAHackathon.Core.BussnessLogic;
 using QAHackathon.Core.LoggingLogic;
 using QAHackathon.Core.RunSettings;
@@ -30,6 +31,7 @@ namespace QAHackathon.Core.RestCore
         public RestResponse Execute(RestRequest request)
         {
             loggingBL.Info("Processing request");
+            loggingBL.Info($"Endpoint - {GetAbsoluteUri(request)}");
 
             var response = restClient.Execute(request);
 
@@ -57,6 +59,11 @@ namespace QAHackathon.Core.RestCore
         public void AddOrUpdateXTaskId(RestRequest request, string xTaskId)
         {
             AddOrUpdateHeader(request, "X-Task-Id", xTaskId);
+        }
+
+        public void AddBody(RestRequest request, Dictionary<string,string> userData)
+        {
+            request.AddBody(userData);
         }
 
         public void AddBody(RestRequest request, User user)

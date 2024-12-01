@@ -26,10 +26,10 @@ namespace QAHackathon.BussinesObjects.Models
         public void Show()
         {
             loggingBL.Info($"User: " +
-                $"Avatar URL:{AvatarUrl}," +
-                $"Email:{Email}," +
-                $"Name:{Name}," +
-                $"Nickname:{Nickname}," +
+                $"Avatar URL:{AvatarUrl}, " +
+                $"Email:{Email}, " +
+                $"Name:{Name}, " +
+                $"Nickname:{Nickname}, " +
                 $"UUID:{Uuid}");
         }
     }

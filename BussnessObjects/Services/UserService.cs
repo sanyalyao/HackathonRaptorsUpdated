@@ -19,6 +19,8 @@ namespace QAHackathon.BussinesObjects.Services
         private readonly string taskIdGetUserByUuid = "api-23";
         private readonly string taskIdCreateUser = "api-3";
         private readonly string taskIdDeleteUser = "api-1";
+        private readonly string taskIdUpdateUserV1 = "api-4";
+        private readonly string taskIdUpdateUserV2 = "api-24";
 
         private static string endpointAllUsers = baseEndpoint + "users";
         private string endpointUserByUuid = endpointAllUsers + "/{uuid}";
@@ -28,12 +30,11 @@ namespace QAHackathon.BussinesObjects.Services
         {
             loggingBL.Info("Getting list of users");
 
-            var resuest = new RestRequest(endpointAllUsers);
+            var request = new RestRequest(endpointAllUsers);
 
-            apiClient.AddOrUpdateXTaskId(resuest, taskIdGetAllUsersV1);
-            loggingBL.Info($"Endpoint - {resuest.Resource}");
+            apiClient.AddOrUpdateXTaskId(request, taskIdGetAllUsersV1);
 
-            var response = apiClient.Execute(resuest);
+            var response = apiClient.Execute(request);
 
             return JsonConvert.DeserializeObject<UsersModel>(response.Content);
         }
@@ -43,12 +44,11 @@ namespace QAHackathon.BussinesObjects.Services
         {
             loggingBL.Info($"Getting a user by uuid - {uuid}");
 
-            var resuest = new RestRequest(endpointUserByUuid).AddUrlSegment("uuid", uuid);
+            var request = new RestRequest(endpointUserByUuid).AddUrlSegment("uuid", uuid);
 
-            apiClient.AddOrUpdateXTaskId(resuest, taskIdGetUserByUuid);
-            loggingBL.Info($"Endpoint - {apiClient.GetAbsoluteUri(resuest)}");
+            apiClient.AddOrUpdateXTaskId(request, taskIdGetUserByUuid);
 
-            var response = apiClient.Execute(resuest);
+            var response = apiClient.Execute(request);
 
             return JsonConvert.DeserializeObject<UserModel>(response.Content);
         }
@@ -58,12 +58,11 @@ namespace QAHackathon.BussinesObjects.Services
         {
             loggingBL.Info($"Getting a user by uuid - {uuid}");
 
-            var resuest = new RestRequest(endpointUserByUuid).AddUrlSegment("uuid", uuid);
+            var request = new RestRequest(endpointUserByUuid).AddUrlSegment("uuid", uuid);
 
-            apiClient.AddOrUpdateXTaskId(resuest, taskIdGetUserByUuid);
-            loggingBL.Info($"Endpoint - {apiClient.GetAbsoluteUri(resuest)}");
+            apiClient.AddOrUpdateXTaskId(request, taskIdGetUserByUuid);
 
-            var response = apiClient.ExecuteWithoutException(resuest);
+            var response = apiClient.ExecuteWithoutException(request);
             var error = JsonConvert.DeserializeObject<ErrorModel>(response.Content);
 
             AssertBL.AreEqual((int)StatusCodes.NotFound, (int)response.StatusCode);
@@ -77,25 +76,14 @@ namespace QAHackathon.BussinesObjects.Services
         {
             loggingBL.Info($"Creating a new user");
 
-            var resuest = new RestRequest(endpointAllUsers, Method.Post);
+            var request = new RestRequest(endpointAllUsers, Method.Post);
 
-            apiClient.AddOrUpdateXTaskId(resuest, taskIdCreateUser);
-            apiClient.AddBody(resuest, newUser);
-            loggingBL.Info($"Endpoint - {apiClient.GetAbsoluteUri(resuest)}");
+            apiClient.AddOrUpdateXTaskId(request, taskIdCreateUser);
+            apiClient.AddBody(request, newUser);
 
-            var response = apiClient.Execute(resuest);
-            var createdUser = JsonConvert.DeserializeObject<UserModel>(response.Content);
+            var response = apiClient.Execute(request);
 
-            Step("Checking the new user exists", () => 
-            {
-                var user = GetUserByUuid(createdUser.Uuid);
-
-                CompareUsers(newUser, user);
-
-                loggingBL.Info("User exists");
-            });
-
-            return createdUser;
+            return JsonConvert.DeserializeObject<UserModel>(response.Content);
         }
 
         [AllureStep("Delete user")]
@@ -103,26 +91,30 @@ namespace QAHackathon.BussinesObjects.Services
         {
             loggingBL.Info($"Deleting user with UUID - {uuid}");
 
-            var resuest = new RestRequest(endpointUserByUuid, Method.Delete).AddUrlSegment("uuid", uuid);
+            var request = new RestRequest(endpointUserByUuid, Method.Delete).AddUrlSegment("uuid", uuid);
 
-            apiClient.AddOrUpdateXTaskId(resuest, taskIdDeleteUser);
-            loggingBL.Info($"Endpoint - {apiClient.GetAbsoluteUri(resuest)}");
+            apiClient.AddOrUpdateXTaskId(request, taskIdDeleteUser);
 
-            var response = apiClient.ExecuteWithoutException(resuest);
+            var response = apiClient.ExecuteWithoutException(request);
 
             AssertBL.AreEqual((int)StatusCodes.NoContent, (int)response.StatusCode);
 
             loggingBL.Info($"User \"{uuid}\" is deleted");
         }
 
-        [AllureStep("Compare users")]
-        private void CompareUsers(User expectedUser, UserModel currentUser)
+        [AllureStep("Update user")]
+        public UserModel UpdateUser(UserModel currentUser, Dictionary<string,string> sameUserWithChanges)
         {
-            Step($"Comparing two users. Name: {expectedUser.Name} with Name: {currentUser.Name}", () => 
+            return Step($"Updating user with UUID - {currentUser.Uuid}", () => 
             {
-                AssertBL.AreEqual(expectedUser.Email, currentUser.Email);
-                AssertBL.AreEqual(expectedUser.Name, currentUser.Name);
-                AssertBL.AreEqual(expectedUser.Nickname, currentUser.Nickname);
+                var request = new RestRequest(endpointUserByUuid, Method.Patch).AddUrlSegment("uuid", currentUser.Uuid);
+
+                apiClient.AddOrUpdateXTaskId(request, taskIdUpdateUserV1);
+                apiClient.AddBody(request, sameUserWithChanges);
+
+                var response = apiClient.Execute(request);
+
+                return JsonConvert.DeserializeObject<UserModel>(response.Content);
             });
         }
     }

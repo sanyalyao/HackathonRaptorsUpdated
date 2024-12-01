@@ -8,17 +8,19 @@
         public string Nickname { get; set; }
         public string Password { get; set; }
 
-        public User(string email, string name, string nickname, string password) 
+        public User() { }
+
+        public User(int avatarUrl, string email, string name, string nickname, string password)
         {
+            AvatarUrl = avatarUrl;
             Email = email;
             Name = name;
             Nickname = nickname;
             Password = password;
         }
 
-        public User(int avatarUrl, string email, string name, string nickname, string password)
+        public User(string email, string name, string nickname, string password) 
         {
-            AvatarUrl = avatarUrl;
             Email = email;
             Name = name;
             Nickname = nickname;

@@ -1,4 +1,7 @@
-﻿using QAHackathon.Core.LoggingLogic;
+﻿using Allure.NUnit.Attributes;
+using QAHackathon.BussinesObjects.Models;
+using QAHackathon.Core.LoggingLogic;
+using static QAHackathon.Core.BussnessLogic.StepsBL;
 
 namespace QAHackathon.Core.BussnessLogic
 {
@@ -89,6 +92,22 @@ namespace QAHackathon.Core.BussnessLogic
                 loggingBL.Error(ex);
 
                 throw new Exception("Objects are not equal");
+            }
+        }
+
+        public static void AreNotEqual(object obj1, object obj2)
+        {
+            try
+            {
+                NUnit.Framework.Assert.AreNotEqual(obj1, obj2);
+
+                loggingBL.Info($"{obj1} is not equal to {obj2}");
+            }
+            catch (Exception ex)
+            {
+                loggingBL.Error(ex);
+
+                throw new Exception("Objects are equal");
             }
         }
     }
