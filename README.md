@@ -37,6 +37,7 @@ Autotesting API for Category "Users":
 
 In the RunSettings => settings.runsettings set you email to get access:
 
+```sh
 <?xml version="1.0" encoding="utf-8"?>
 <RunSettings>
 	<TestRunParameters>
@@ -46,10 +47,13 @@ In the RunSettings => settings.runsettings set you email to get access:
 		<Parameter name="Environment" value="release"/>
 	</TestRunParameters>
 </RunSettings>
+```
 
 If you want to change Environment, just set "release" or "dev":
 
+```sh
 <Parameter name="Environment" value="release"/>
+```
 
 ### Reporting and documantation
 
