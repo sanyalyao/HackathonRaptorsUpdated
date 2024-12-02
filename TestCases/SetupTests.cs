@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace QAHackathon.TestCases
 {
     [TestFixture]
-    public class SetupBase : TestBase
+    public class SetupTests : TestBase
     {
         [Test]
         [Description("Sets up API, cleans DB and populates with sample data")]
