@@ -37,19 +37,19 @@ Autotesting API for Category "Users":
 
 In the RunSettings => settings.runsettings set you email to get access:
 
-> <?xml version="1.0" encoding="utf-8"?>
-> <RunSettings>
->	<TestRunParameters>
->		<Parameter name="ReleaseEndpoint" value="https://release-gs.qa-playground.com/api/v1/" />
->		<Parameter name="DevEndpoint" value="https://dev-gs.qa-playground.com/api/v1/" />
->		<Parameter name="Email" value="your_email@example.exp"/>
->		<Parameter name="Environment" value="release"/>
->	</TestRunParameters>
-> </RunSettings>
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+	<TestRunParameters>
+		<Parameter name="ReleaseEndpoint" value="https://release-gs.qa-playground.com/api/v1/" />
+		<Parameter name="DevEndpoint" value="https://dev-gs.qa-playground.com/api/v1/" />
+		<Parameter name="Email" value="your_email@example.exp"/>
+		<Parameter name="Environment" value="release"/>
+	</TestRunParameters>
+</RunSettings>
 
 If you want to change Environment, just set "release" or "dev":
 
-> <Parameter name="Environment" value="release"/>
+<Parameter name="Environment" value="release"/>
 
 ### Reporting and documantation
 
