@@ -25,6 +25,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Core\Configs\inputTestData.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Core\Configs\NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -1,0 +1,18 @@
+{
+  "api": {
+    "users": {
+      "getallusers": [
+        "api-6",
+        "api-21"
+      ],
+      "createuser": [
+        "api-3",
+        "api-22"
+      ],
+      "updateuser": [
+        "api-4",
+        "api-24"
+      ]
+    }
+  }
+}

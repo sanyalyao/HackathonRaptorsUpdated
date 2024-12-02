@@ -14,14 +14,8 @@ namespace QAHackathon.BussinesObjects.Services
     {
         public UserService(BaseApiClient apiClient) : base(apiClient) { }
 
-        private readonly string taskIdGetAllUsersV1 = "api-6";
-        private readonly string taskIdGetAllUsersV2 = "api-21";
         private readonly string taskIdGetUserByUuid = "api-23";
-        private readonly string taskIdCreateUserV1 = "api-3";
-        private readonly string taskIdCreateUserV2 = "api-22";
         private readonly string taskIdDeleteUser = "api-1";
-        private readonly string taskIdUpdateUserV1 = "api-4";
-        private readonly string taskIdUpdateUserV2 = "api-24";
         private readonly string taskIdGetUserByPassAndEmail = "api-7";
 
         private static string endpointAllUsers = baseEndpoint + "users";
@@ -30,13 +24,13 @@ namespace QAHackathon.BussinesObjects.Services
         private string endpointUserLogin = endpointAllUsers + "/login";        
 
         [AllureStep("Get list of users")]
-        public UsersModel GetUsers()
+        public UsersModel GetUsers(string taskId)
         {
             loggingBL.Info("Getting list of users");
 
             var request = new RestRequest(endpointAllUsers);
 
-            apiClient.AddOrUpdateXTaskId(request, taskIdGetAllUsersV1);
+            apiClient.AddOrUpdateXTaskId(request, taskId);
 
             var response = apiClient.Execute(request);
 
@@ -44,13 +38,13 @@ namespace QAHackathon.BussinesObjects.Services
         }
 
         [AllureStep("Get list of users with limit")]
-        public UsersModel GetUsers(int limit)
+        public UsersModel GetUsers(int limit, string taskId)
         {
             loggingBL.Info($"Getting list of users with limit = {limit}");
 
             var request = new RestRequest(endpointAllUsersWithLimit).AddParameter("limit", limit);
 
-            apiClient.AddOrUpdateXTaskId(request, taskIdGetAllUsersV1);
+            apiClient.AddOrUpdateXTaskId(request, taskId);
 
             var response = apiClient.Execute(request);
 
@@ -91,13 +85,13 @@ namespace QAHackathon.BussinesObjects.Services
         }
 
         [AllureStep("Create a new user")]
-        public UserModel CreateNewUser(User newUser)
+        public UserModel CreateNewUser(User newUser, string taskId)
         {
             loggingBL.Info("Creating a new user");
 
             var request = new RestRequest(endpointAllUsers, Method.Post);
 
-            apiClient.AddOrUpdateXTaskId(request, taskIdCreateUserV2);
+            apiClient.AddOrUpdateXTaskId(request, taskId);
             apiClient.AddBody(request, newUser);
 
             var response = apiClient.Execute(request);
@@ -106,13 +100,13 @@ namespace QAHackathon.BussinesObjects.Services
         }
 
         [AllureStep("Create a new user")]
-        public RestResponse CreateNewUserWithoutException(User newUser)
+        public RestResponse CreateNewUserWithoutException(User newUser, string taskId)
         {
             return Step("Creating a new user", () =>
             {
                 var request = new RestRequest(endpointAllUsers, Method.Post);
 
-                apiClient.AddOrUpdateXTaskId(request, taskIdCreateUserV1);
+                apiClient.AddOrUpdateXTaskId(request, taskId);
                 apiClient.AddBody(request, newUser);
 
                 var response = apiClient.ExecuteWithoutException(request);
@@ -138,13 +132,13 @@ namespace QAHackathon.BussinesObjects.Services
         }
 
         [AllureStep("Update user")]
-        public UserModel UpdateUser(UserModel currentUser, Dictionary<string,string> sameUserWithChanges)
+        public UserModel UpdateUser(UserModel currentUser, Dictionary<string,string> sameUserWithChanges, string taskId)
         {
             return Step($"Updating user with UUID - {currentUser.Uuid}", () => 
             {
                 var request = new RestRequest(endpointUserByUuid, Method.Patch).AddUrlSegment("uuid", currentUser.Uuid);
 
-                apiClient.AddOrUpdateXTaskId(request, taskIdUpdateUserV1);
+                apiClient.AddOrUpdateXTaskId(request, taskId);
                 apiClient.AddBody(request, sameUserWithChanges);
 
                 var response = apiClient.Execute(request);
@@ -154,13 +148,13 @@ namespace QAHackathon.BussinesObjects.Services
         }
 
         [AllureStep("Update user")]
-        public RestResponse UpdateUserWithoutException(UserModel currentUser, Dictionary<string, string> sameUserWithChanges)
+        public RestResponse UpdateUserWithoutException(UserModel currentUser, Dictionary<string, string> sameUserWithChanges, string taskId)
         {
             return Step($"Updating user with UUID - {currentUser.Uuid}", () =>
             {
                 var request = new RestRequest(endpointUserByUuid, Method.Patch).AddUrlSegment("uuid", currentUser.Uuid);
 
-                apiClient.AddOrUpdateXTaskId(request, taskIdUpdateUserV1);
+                apiClient.AddOrUpdateXTaskId(request, taskId);
                 apiClient.AddBody(request, sameUserWithChanges);
 
                 var response = apiClient.ExecuteWithoutException(request);
@@ -168,6 +162,22 @@ namespace QAHackathon.BussinesObjects.Services
                 return response;
             });
         }
+
+        public RestResponse UpdateUserWithoutException(UserModel currentUser, Dictionary<string, string> sameUserWithChanges)
+        {
+            return Step($"Updating user with UUID - {currentUser.Uuid}", () =>
+            {
+                var request = new RestRequest(endpointUserByUuid, Method.Patch).AddUrlSegment("uuid", currentUser.Uuid);
+
+                apiClient.AddOrUpdateXTaskId(request, "");
+                apiClient.AddBody(request, sameUserWithChanges);
+
+                var response = apiClient.ExecuteWithoutException(request);
+
+                return response;
+            });
+        }
+
 
         [AllureStep("Get a user by password and Email")]
         public UserModel GetUserByPasswordAndEmail(User user)

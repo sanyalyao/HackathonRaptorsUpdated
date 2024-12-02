@@ -1,7 +1,5 @@
 ﻿using NUnit.Framework;
 using Newtonsoft.Json;
-using System;
-
 
 namespace QAHackathon.Core.RunSettings
 {

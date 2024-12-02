@@ -65,14 +65,15 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Negative")]
+        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.CreateUserData))]
         [AllureSeverity(SeverityLevel.critical)]
-        public void GetUserNotByPasswordAndEmail()
+        public void GetUserNotByPasswordAndEmail(string taskId)
         {
             var currentUser = Step("Creating a new user", () =>
             {
                 var newUser = UserGenerator.GetNewUser();
 
-                userService.CreateNewUser(newUser);
+                userService.CreateNewUser(newUser, taskId);
 
                 return newUser;
             });
@@ -101,8 +102,9 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Negative")]
+        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.CreateUserData))]
         [AllureSeverity(SeverityLevel.critical)]
-        public void CreateUserWithIncorrectEmailFormat()
+        public void CreateUserWithIncorrectEmailFormat(string taskId)
         {
             var userIncorrectEmail = Step("Generating fake user with incorrect email format", () => 
             {
@@ -111,7 +113,7 @@ namespace QAHackathon.TestCases.UserTests
 
             var response = Step("Registering a new user with incorrect email", () => 
             {
-                return userService.CreateNewUserWithoutException(userIncorrectEmail);
+                return userService.CreateNewUserWithoutException(userIncorrectEmail, taskId);
             });
 
             Step("Checking for error in response", () =>
@@ -133,8 +135,9 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Negative")]
+        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.CreateUserData))]
         [AllureSeverity(SeverityLevel.critical)]
-        public void CreateUserWithIncorrectMaxEmailLength()
+        public void CreateUserWithIncorrectMaxEmailLength(string taskId)
         {
             var userIncorrectEmailMaxLength = Step("Generating fake users with incorrect max email length", () =>
             {
@@ -143,7 +146,7 @@ namespace QAHackathon.TestCases.UserTests
 
             var response = Step("Registering a new user with incorrect max email length", () =>
             {
-                return userService.CreateNewUserWithoutException(userIncorrectEmailMaxLength);
+                return userService.CreateNewUserWithoutException(userIncorrectEmailMaxLength, taskId);
             });
 
             Step("Checking for error in response", () =>
@@ -165,8 +168,9 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Negative")]
+        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.CreateUserData))]
         [AllureSeverity(SeverityLevel.critical)]
-        public void CreateUserWithEmptyEmailLength()
+        public void CreateUserWithEmptyEmailLength(string taskId)
         {
             var userIncorrectEmailMinLength = Step("Generating fake users with empty email", () =>
             {
@@ -180,7 +184,7 @@ namespace QAHackathon.TestCases.UserTests
 
             var response = Step("Registering a new user with incorrect min email length", () =>
             {
-                return userService.CreateNewUserWithoutException(userIncorrectEmailMinLength);
+                return userService.CreateNewUserWithoutException(userIncorrectEmailMinLength, taskId);
             });
 
             Step("Checking for error in response", () =>
@@ -202,8 +206,9 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Negative")]
+        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.CreateUserData))]
         [AllureSeverity(SeverityLevel.critical)]
-        public void CreateUserWithNullEmail()
+        public void CreateUserWithNullEmail(string taskId)
         {
             var userIncorrectEmailMinLength = Step("Generating fake users with null email", () =>
             {
@@ -217,7 +222,7 @@ namespace QAHackathon.TestCases.UserTests
 
             var response = Step("Registering a new user with incorrect min email length", () =>
             {
-                return userService.CreateNewUserWithoutException(userIncorrectEmailMinLength);
+                return userService.CreateNewUserWithoutException(userIncorrectEmailMinLength, taskId);
             });
 
             Step("Checking for error in response", () =>
@@ -239,8 +244,9 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Negative")]
+        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.CreateUserData))]
         [AllureSeverity(SeverityLevel.critical)]
-        public void CreateUserWithIncorrectMinEmailLength()
+        public void CreateUserWithIncorrectMinEmailLength(string taskId)
         {
             var userIncorrectEmailMinLength = Step("Generating fake users with incorrect min email length", () =>
             {
@@ -253,7 +259,7 @@ namespace QAHackathon.TestCases.UserTests
 
             var response = Step("Registering a new user with incorrect min email length", () =>
             {
-                return userService.CreateNewUserWithoutException(userIncorrectEmailMinLength);
+                return userService.CreateNewUserWithoutException(userIncorrectEmailMinLength, taskId);
             });
 
             Step("Checking for error in response", () =>
@@ -275,12 +281,13 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Negative")]
+        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.GetAllUsersData))]
         [AllureSeverity(SeverityLevel.critical)]
-        public void UpdateUserWithIncorrectData()
+        public void UpdateUserWithIncorrectData(string taskId)
         {
             var responses = Step("Updating a user with incorrect null data", () =>
             {
-                var currentUser = userService.GetUsers().Users.ToList().First();
+                var currentUser = userService.GetUsers(taskId).Users.ToList().First();
 
                 var userWithNullName = new Dictionary<string, string>()
                 {
