@@ -23,5 +23,14 @@ namespace QAHackathon.Core.RunSettings
 
         [JsonProperty("updateuser")]
         public List<string> UpdateUser { get; set; }
+
+        [JsonProperty("getuserbyuuid")]
+        public string GetUserByUuid { get; set; }
+
+        [JsonProperty("deleteuser")]
+        public string DeleteUser { get; set; }
+
+        [JsonProperty("getuserbypassandemail")]
+        public string GetUserByPassAndEmail { get; set; }
     }
 }

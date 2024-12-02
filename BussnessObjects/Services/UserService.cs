@@ -14,10 +14,6 @@ namespace QAHackathon.BussinesObjects.Services
     {
         public UserService(BaseApiClient apiClient) : base(apiClient) { }
 
-        private readonly string taskIdGetUserByUuid = "api-23";
-        private readonly string taskIdDeleteUser = "api-1";
-        private readonly string taskIdGetUserByPassAndEmail = "api-7";
-
         private static string endpointAllUsers = baseEndpoint + "users";
         private static string endpointAllUsersWithLimit = endpointAllUsers;
         private string endpointUserByUuid = endpointAllUsers + "/{uuid}";
@@ -52,13 +48,13 @@ namespace QAHackathon.BussinesObjects.Services
         }
 
         [AllureStep("Get a user by uuid")]
-        public UserModel GetUserByUuid(string uuid)
+        public UserModel GetUserByUuid(string uuid, string taskId)
         {
             loggingBL.Info($"Getting a user by uuid - {uuid}");
 
             var request = new RestRequest(endpointUserByUuid).AddUrlSegment("uuid", uuid);
 
-            apiClient.AddOrUpdateXTaskId(request, taskIdGetUserByUuid);
+            apiClient.AddOrUpdateXTaskId(request, taskId);
 
             var response = apiClient.Execute(request);
 
@@ -66,13 +62,13 @@ namespace QAHackathon.BussinesObjects.Services
         }
 
         [AllureStep("Get a user by uuid")]
-        public void GetUserByUuidWithoutException(string uuid)
+        public void GetUserByUuidWithoutException(string uuid, string taskId)
         {
             loggingBL.Info($"Getting a user by uuid - {uuid}");
 
             var request = new RestRequest(endpointUserByUuid).AddUrlSegment("uuid", uuid);
 
-            apiClient.AddOrUpdateXTaskId(request, taskIdGetUserByUuid);
+            apiClient.AddOrUpdateXTaskId(request, taskId);
 
             var response = apiClient.ExecuteWithoutException(request);
             var error = new ErrorModel().GetError(response);
@@ -116,13 +112,13 @@ namespace QAHackathon.BussinesObjects.Services
         }
 
         [AllureStep("Delete user")]
-        public void DeleteUser(string uuid)
+        public void DeleteUser(string uuid, string taskId)
         {
             loggingBL.Info($"Deleting user with UUID - {uuid}");
 
             var request = new RestRequest(endpointUserByUuid, Method.Delete).AddUrlSegment("uuid", uuid);
 
-            apiClient.AddOrUpdateXTaskId(request, taskIdDeleteUser);
+            apiClient.AddOrUpdateXTaskId(request, taskId);
 
             var response = apiClient.ExecuteWithoutException(request);
 
@@ -163,24 +159,8 @@ namespace QAHackathon.BussinesObjects.Services
             });
         }
 
-        public RestResponse UpdateUserWithoutException(UserModel currentUser, Dictionary<string, string> sameUserWithChanges)
-        {
-            return Step($"Updating user with UUID - {currentUser.Uuid}", () =>
-            {
-                var request = new RestRequest(endpointUserByUuid, Method.Patch).AddUrlSegment("uuid", currentUser.Uuid);
-
-                apiClient.AddOrUpdateXTaskId(request, "");
-                apiClient.AddBody(request, sameUserWithChanges);
-
-                var response = apiClient.ExecuteWithoutException(request);
-
-                return response;
-            });
-        }
-
-
         [AllureStep("Get a user by password and Email")]
-        public UserModel GetUserByPasswordAndEmail(User user)
+        public UserModel GetUserByPasswordAndEmail(User user, string taskId)
         {
             return Step($"Getting the user with Email: {user.Email} and Password: {user.Password}", () => 
             {
@@ -191,7 +171,7 @@ namespace QAHackathon.BussinesObjects.Services
                     { "password", user.Password}
                 };
 
-                apiClient.AddOrUpdateXTaskId(request, taskIdGetUserByPassAndEmail);
+                apiClient.AddOrUpdateXTaskId(request, taskId);
                 apiClient.AddBody(request, data);
 
                 var response = apiClient.Execute(request);
@@ -201,7 +181,7 @@ namespace QAHackathon.BussinesObjects.Services
         }
 
         [AllureStep("Get a user by nickname and password")]
-        public RestResponse GetUserByNicknameAndPassword(User user)
+        public RestResponse GetUserByNicknameAndPassword(User user, string taskId)
         {
             return Step($"Getting the user with Nickname: {user.Nickname} and Password: {user.Password}", () => 
             {
@@ -212,7 +192,7 @@ namespace QAHackathon.BussinesObjects.Services
                     { "password", user.Password}
                 };
 
-                apiClient.AddOrUpdateXTaskId(request, taskIdGetUserByPassAndEmail);
+                apiClient.AddOrUpdateXTaskId(request, taskId);
                 apiClient.AddBody(request, data);
 
                 var response = apiClient.ExecuteWithoutException(request);

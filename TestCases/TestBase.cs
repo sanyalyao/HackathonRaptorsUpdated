@@ -55,10 +55,6 @@ namespace QAHackathon.TestCases
                         {
                             yield return new TestCaseData(data);
                         }
-                        foreach (var data in inputTestData.Api.Users.UpdateUser)
-                        {
-                            yield return new TestCaseData(data);
-                        }
                     }
                 }
 
@@ -69,6 +65,89 @@ namespace QAHackathon.TestCases
                         foreach (var data in inputTestData.Api.Users.CreateUser)
                         {
                             yield return new TestCaseData(data);
+                        }
+                    }
+                }
+
+                public static IEnumerable<TestCaseData> UpdateUserData
+                {
+                    get
+                    {
+                        foreach (var data in inputTestData.Api.Users.UpdateUser)
+                        {
+                            yield return new TestCaseData(data);
+                        }
+                    }
+                }
+
+                public static IEnumerable<TestCaseData> GetUpdateUsers
+                {
+                    get
+                    {
+                        foreach (var getAllUsers in inputTestData.Api.Users.GetAllUsers)
+                        {
+                            foreach (var updateUser in inputTestData.Api.Users.UpdateUser)
+                            {
+                                yield return new TestCaseData(getAllUsers, updateUser);
+                            }
+                        }
+                    }
+                }
+
+                public static IEnumerable<TestCaseData> GetCreateUsers
+                {
+                    get
+                    {
+                        foreach (var getAllUsers in inputTestData.Api.Users.GetAllUsers)
+                        {
+                            foreach (var createUser in inputTestData.Api.Users.CreateUser)
+                            {
+                                yield return new TestCaseData(getAllUsers, createUser);
+                            }
+                        }
+                    }
+                }
+
+                public static IEnumerable<TestCaseData> GetUsersUuidData
+                {
+                    get
+                    {
+                        foreach (var getAllUsers in inputTestData.Api.Users.GetAllUsers)
+                        {
+                            yield return new TestCaseData(getAllUsers, inputTestData.Api.Users.GetUserByUuid);
+                        }
+                    }
+                }
+
+                public static IEnumerable<TestCaseData> CreateDeleteGetByUuidData
+                {
+                    get
+                    {
+                        foreach (var createUser in inputTestData.Api.Users.CreateUser)
+                        {
+                            yield return new TestCaseData(createUser, inputTestData.Api.Users.DeleteUser, inputTestData.Api.Users.GetUserByUuid);
+                        }
+                    }
+                }
+
+                public static IEnumerable<TestCaseData> GetAllGetByUuidDeleteData
+                {
+                    get
+                    {
+                        foreach (var getUsers in inputTestData.Api.Users.GetAllUsers)
+                        {
+                            yield return new TestCaseData(getUsers, inputTestData.Api.Users.GetUserByUuid, inputTestData.Api.Users.DeleteUser);
+                        }
+                    }
+                }
+
+                public static IEnumerable<TestCaseData> CreateGetByPassEmailData
+                {
+                    get
+                    {
+                        foreach (var createUser in inputTestData.Api.Users.CreateUser)
+                        {
+                            yield return new TestCaseData(createUser, inputTestData.Api.Users.GetUserByPassAndEmail);
                         }
                     }
                 }

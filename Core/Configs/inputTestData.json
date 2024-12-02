@@ -12,7 +12,10 @@
       "updateuser": [
         "api-4",
         "api-24"
-      ]
+      ],
+      "getuserbyuuid": "api-23",
+      "deleteuser": "api-1",
+      "getuserbypassandemail": "api-7"
     }
   }
 }

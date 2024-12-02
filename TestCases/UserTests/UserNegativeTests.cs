@@ -20,8 +20,9 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Negative")]
+        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.UpdateUserData))]
         [AllureSeverity(SeverityLevel.critical)]
-        public void UpdateNonExistentUser()
+        public void UpdateNonExistentUser(string taskId)
         {
             var user =  Step("Generating a user with fake UUID", () => 
             {
@@ -43,7 +44,7 @@ namespace QAHackathon.TestCases.UserTests
                     { "nickname", UtilsBL.GetCorrectNickname() }
                 };
 
-                return userService.UpdateUserWithoutException(user, userWithChanges);
+                return userService.UpdateUserWithoutException(user, userWithChanges, taskId);
             });
 
             Step("Checking for error in response", () =>
@@ -65,22 +66,22 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Negative")]
-        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.CreateUserData))]
+        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.GetCreateUsers))]
         [AllureSeverity(SeverityLevel.critical)]
-        public void GetUserNotByPasswordAndEmail(string taskId)
+        public void GetUserNotByPasswordAndEmail(string getUserTaskId, string createUserTaskId)
         {
             var currentUser = Step("Creating a new user", () =>
             {
                 var newUser = UserGenerator.GetNewUser();
 
-                userService.CreateNewUser(newUser, taskId);
+                userService.CreateNewUser(newUser, createUserTaskId);
 
                 return newUser;
             });
 
             var response = Step("Getting the user by nickname and password", () =>
             {
-                return userService.GetUserByNicknameAndPassword(currentUser);
+                return userService.GetUserByNicknameAndPassword(currentUser, getUserTaskId);
             });
 
             Step("Checking for error in response", () =>
@@ -309,10 +310,11 @@ namespace QAHackathon.TestCases.UserTests
                     { "password", null }
                 };
 
-                var responses = new List<RestResponse>() { userService.UpdateUserWithoutException(currentUser, userWithNullName),
-                    userService.UpdateUserWithoutException(currentUser, userWithNullNickname),
-                    userService.UpdateUserWithoutException(currentUser, userWithNullEmail),
-                    userService.UpdateUserWithoutException(currentUser, userWithNullPassword) };
+                var responses = new List<RestResponse>() { 
+                    userService.UpdateUserWithoutException(currentUser, userWithNullName, taskId),
+                    userService.UpdateUserWithoutException(currentUser, userWithNullNickname, taskId),
+                    userService.UpdateUserWithoutException(currentUser, userWithNullEmail, taskId),
+                    userService.UpdateUserWithoutException(currentUser, userWithNullPassword, taskId) };
 
                 return responses;
             });
