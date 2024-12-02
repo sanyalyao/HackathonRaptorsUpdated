@@ -7,7 +7,6 @@ using QAHackathon.BussinesObjects.Services;
 using QAHackathon.BussnessObjects.Services;
 using QAHackathon.Core.LoggingLogic;
 using QAHackathon.Core.RunSettings;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace QAHackathon.TestCases
 {
