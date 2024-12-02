@@ -20,7 +20,9 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Negative")]
-        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.UpdateUserData))]
+        [TestCaseSource(typeof(Api.Users),
+            nameof(Api.Users.GetTestData),
+            new object[] { new ApiTaskId[] { ApiTaskId.Update } })]
         [AllureSeverity(SeverityLevel.critical)]
         public void UpdateNonExistentUser(string taskId)
         {
@@ -66,22 +68,24 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Negative")]
-        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.GetCreateUsers))]
+        [TestCaseSource(typeof(Api.Users),
+            nameof(Api.Users.GetTestData),
+            new object[] { new ApiTaskId[] { ApiTaskId.GetAll, ApiTaskId.Create } })]
         [AllureSeverity(SeverityLevel.critical)]
-        public void GetUserNotByPasswordAndEmail(string getUserTaskId, string createUserTaskId)
+        public void GetUserNotByPasswordAndEmail(string getAllTaskId, string createTaskId)
         {
             var currentUser = Step("Creating a new user", () =>
             {
                 var newUser = UserGenerator.GetNewUser();
 
-                userService.CreateNewUser(newUser, createUserTaskId);
+                userService.CreateNewUser(newUser, createTaskId);
 
                 return newUser;
             });
 
             var response = Step("Getting the user by nickname and password", () =>
             {
-                return userService.GetUserByNicknameAndPassword(currentUser, getUserTaskId);
+                return userService.GetUserByNicknameAndPassword(currentUser, getAllTaskId);
             });
 
             Step("Checking for error in response", () =>
@@ -103,7 +107,9 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Negative")]
-        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.CreateUserData))]
+        [TestCaseSource(typeof(Api.Users),
+            nameof(Api.Users.GetTestData),
+            new object[] { new ApiTaskId[] { ApiTaskId.Create } })]
         [AllureSeverity(SeverityLevel.critical)]
         public void CreateUserWithIncorrectEmailFormat(string taskId)
         {
@@ -136,7 +142,9 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Negative")]
-        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.CreateUserData))]
+        [TestCaseSource(typeof(Api.Users),
+            nameof(Api.Users.GetTestData),
+            new object[] { new ApiTaskId[] { ApiTaskId.Create } })]
         [AllureSeverity(SeverityLevel.critical)]
         public void CreateUserWithIncorrectMaxEmailLength(string taskId)
         {
@@ -169,7 +177,9 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Negative")]
-        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.CreateUserData))]
+        [TestCaseSource(typeof(Api.Users),
+            nameof(Api.Users.GetTestData),
+            new object[] { new ApiTaskId[] { ApiTaskId.Create } })]
         [AllureSeverity(SeverityLevel.critical)]
         public void CreateUserWithEmptyEmailLength(string taskId)
         {
@@ -207,7 +217,9 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Negative")]
-        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.CreateUserData))]
+        [TestCaseSource(typeof(Api.Users),
+            nameof(Api.Users.GetTestData),
+            new object[] { new ApiTaskId[] { ApiTaskId.Create } })]
         [AllureSeverity(SeverityLevel.critical)]
         public void CreateUserWithNullEmail(string taskId)
         {
@@ -245,7 +257,9 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Negative")]
-        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.CreateUserData))]
+        [TestCaseSource(typeof(Api.Users),
+            nameof(Api.Users.GetTestData),
+            new object[] { new ApiTaskId[] { ApiTaskId.Create } })]
         [AllureSeverity(SeverityLevel.critical)]
         public void CreateUserWithIncorrectMinEmailLength(string taskId)
         {
@@ -282,7 +296,9 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Negative")]
-        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.GetAllUsersData))]
+        [TestCaseSource(typeof(Api.Users), 
+            nameof(Api.Users.GetTestData),
+            new object[] { new ApiTaskId[] { ApiTaskId.GetAll } })]
         [AllureSeverity(SeverityLevel.critical)]
         public void UpdateUserWithIncorrectData(string taskId)
         {

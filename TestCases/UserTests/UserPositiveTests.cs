@@ -15,10 +15,14 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Positive")]
-        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.GetAllUsersData))]
+        [TestCaseSource(typeof(Api.Users),
+            nameof(Api.Users.GetTestData),
+            new object[] { new ApiTaskId[] { ApiTaskId.GetAll } })]
         [AllureSeverity(SeverityLevel.critical)]
         public void GetUsers(string taskId)
         {
+            var test = taskId;
+
             var users = Step("Getting all users", () =>
             {
                 return userService.GetUsers(taskId);
@@ -39,7 +43,9 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Positive")]
-        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.GetAllUsersData))]
+        [TestCaseSource(typeof(Api.Users),
+            nameof(Api.Users.GetTestData),
+            new object[] { new ApiTaskId[] { ApiTaskId.GetAll } })]
         [AllureSeverity(SeverityLevel.critical)]
         public void GetUsersWithLimit(string taskId)
         {
@@ -69,20 +75,22 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Positive")]
-        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.GetUsersUuidData))]
+        [TestCaseSource(typeof(Api.Users),
+            nameof(Api.Users.GetTestData),
+            new object[] { new ApiTaskId[] { ApiTaskId.GetAll, ApiTaskId.GetByUuid } })]
         [AllureSeverity(SeverityLevel.critical)]
-        public void GetRandomUserByUuid(string getUsersTaskId, string getUserByUuidTaskId)
+        public void GetRandomUserByUuid(string getAllTaskId, string getByUuidTaskId)
         {
             var users = Step("Getting all users", () =>
             {
-                return userService.GetUsers(getUsersTaskId);
+                return userService.GetUsers(getAllTaskId);
             });
 
             Step("Getting random user", () =>
             {
                 var usersCount = users.Users.Count;
                 var randomUser = users.Users.ToList()[new Random().Next(0, usersCount)];
-                var user = userService.GetUserByUuid(randomUser.Uuid, getUserByUuidTaskId);
+                var user = userService.GetUserByUuid(randomUser.Uuid, getByUuidTaskId);
 
                 loggingBL.Info("Got random user");
                 user.Show();
@@ -94,7 +102,9 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Positive")]
-        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.CreateDeleteGetByUuidData))]
+        [TestCaseSource(typeof(Api.Users),
+            nameof(Api.Users.GetTestData),
+            new object[] { new ApiTaskId[] { ApiTaskId.Create, ApiTaskId.Delete, ApiTaskId.GetByUuid } })]
         [AllureSeverity(SeverityLevel.critical)]
         public void DeleteUser(string createTaskId, string deleteTaskId, string getByUuidTaskId)
         {
@@ -125,7 +135,9 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Positive")]
-        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.GetAllGetByUuidDeleteData))]
+        [TestCaseSource(typeof(Api.Users),
+            nameof(Api.Users.GetTestData),
+            new object[] { new ApiTaskId[] { ApiTaskId.GetAll, ApiTaskId.GetByUuid, ApiTaskId.Delete } })]
         [AllureSeverity(SeverityLevel.critical)]
         public void DeleteRandomUser(string getTaskId, string getByUuidTaskId, string deleteTaskId)
         {
@@ -166,7 +178,9 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Positive")]
-        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.CreateUserData))]
+        [TestCaseSource(typeof(Api.Users),
+            nameof(Api.Users.GetTestData),
+            new object[] { new ApiTaskId[] { ApiTaskId.Create } })]
         [AllureSeverity(SeverityLevel.critical)]
         public void CreateUser(string taskId)
         {
@@ -204,13 +218,15 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Positive")]
-        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.GetUpdateUsers))]
+        [TestCaseSource(typeof(Api.Users),
+            nameof(Api.Users.GetTestData),
+            new object[] { new ApiTaskId[] { ApiTaskId.GetAll, ApiTaskId.Update} })]
         [AllureSeverity(SeverityLevel.critical)]
-        public void UpdateUser(string taskIdGetAllUsers, string taskIdUpdateUser)
+        public void UpdateUser(string getAllTaskId, string updateTeskId)
         {
             var currentUser = Step("Getting random user", () =>
             {
-                var users = userService.GetUsers(taskIdGetAllUsers);
+                var users = userService.GetUsers(getAllTaskId);
                 var usersCount = users.Users.Count;
                 var randomUser = users.Users.ToList()[new Random().Next(0, usersCount)];
 
@@ -231,7 +247,7 @@ namespace QAHackathon.TestCases.UserTests
             {
                 loggingBL.Info($"New Name: {userWithChanges.First().Value} and Nickname: {userWithChanges.Last().Value}");
 
-                var updatedUser = userService.UpdateUser(currentUser, userWithChanges, taskIdUpdateUser);
+                var updatedUser = userService.UpdateUser(currentUser, userWithChanges, updateTeskId);
 
                 loggingBL.Info("New user data");
                 updatedUser.Show();
@@ -258,7 +274,9 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Positive")]
-        [TestCaseSource(typeof(Api.Users), nameof(Api.Users.CreateGetByPassEmailData))]
+        [TestCaseSource(typeof(Api.Users),
+            nameof(Api.Users.GetTestData),
+            new object[] { new ApiTaskId[] { ApiTaskId.Create, ApiTaskId.GetByPassEmail } })]
         [AllureSeverity(SeverityLevel.critical)]
         public void GetUserByPasswordAndEmail(string createTaskId, string getByPassEmailTaskId)
         {

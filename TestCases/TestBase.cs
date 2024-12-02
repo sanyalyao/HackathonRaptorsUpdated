@@ -7,6 +7,7 @@ using QAHackathon.BussinesObjects.Services;
 using QAHackathon.BussnessObjects.Services;
 using QAHackathon.Core.LoggingLogic;
 using QAHackathon.Core.RunSettings;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace QAHackathon.TestCases
 {
@@ -43,111 +44,98 @@ namespace QAHackathon.TestCases
             LogManager.Shutdown();            
         }
 
+        public enum ApiTaskId
+        {
+            GetAll,
+            GetByUuid,
+            Delete,
+            Create,
+            Update,
+            GetByPassEmail
+        }
+
         public static class Api
         {
             public static class Users
             {
-                public static IEnumerable<TestCaseData> GetAllUsersData
+                public static IEnumerable<TestCaseData> GetTestData(IEnumerable<ApiTaskId> apiTaskIds)
                 {
-                    get
+                    if (apiTaskIds.SequenceEqual(new ApiTaskId[] { ApiTaskId.GetAll , ApiTaskId.Update }))
                     {
-                        foreach (var data in inputTestData.Api.Users.GetAllUsers)
+                        foreach (var getAll in inputTestData.Api.Users.GetAllUsers)
                         {
-                            yield return new TestCaseData(data);
-                        }
-                    }
-                }
-
-                public static IEnumerable<TestCaseData> CreateUserData
-                {
-                    get
-                    {
-                        foreach (var data in inputTestData.Api.Users.CreateUser)
-                        {
-                            yield return new TestCaseData(data);
-                        }
-                    }
-                }
-
-                public static IEnumerable<TestCaseData> UpdateUserData
-                {
-                    get
-                    {
-                        foreach (var data in inputTestData.Api.Users.UpdateUser)
-                        {
-                            yield return new TestCaseData(data);
-                        }
-                    }
-                }
-
-                public static IEnumerable<TestCaseData> GetUpdateUsers
-                {
-                    get
-                    {
-                        foreach (var getAllUsers in inputTestData.Api.Users.GetAllUsers)
-                        {
-                            foreach (var updateUser in inputTestData.Api.Users.UpdateUser)
+                            foreach (var update in inputTestData.Api.Users.UpdateUser)
                             {
-                                yield return new TestCaseData(getAllUsers, updateUser);
+                                yield return new TestCaseData(getAll, update);
                             }
                         }
                     }
-                }
 
-                public static IEnumerable<TestCaseData> GetCreateUsers
-                {
-                    get
+                    if (apiTaskIds.SequenceEqual(new ApiTaskId[] { ApiTaskId.GetAll, ApiTaskId.GetByUuid }))
                     {
-                        foreach (var getAllUsers in inputTestData.Api.Users.GetAllUsers)
+                        foreach (var getAll in inputTestData.Api.Users.GetAllUsers)
                         {
-                            foreach (var createUser in inputTestData.Api.Users.CreateUser)
+                            yield return new TestCaseData(getAll, inputTestData.Api.Users.GetUserByUuid);
+                        }
+                    }
+
+                    if (apiTaskIds.SequenceEqual(new ApiTaskId[] { ApiTaskId.GetAll, ApiTaskId.Create }))
+                    {
+                        foreach (var getAll in inputTestData.Api.Users.GetAllUsers)
+                        {
+                            foreach (var create in inputTestData.Api.Users.CreateUser)
                             {
-                                yield return new TestCaseData(getAllUsers, createUser);
+                                yield return new TestCaseData(getAll, create);
                             }
                         }
                     }
-                }
 
-                public static IEnumerable<TestCaseData> GetUsersUuidData
-                {
-                    get
+                    if (apiTaskIds.SequenceEqual(new ApiTaskId[] { ApiTaskId.Create, ApiTaskId.GetByPassEmail }))
                     {
-                        foreach (var getAllUsers in inputTestData.Api.Users.GetAllUsers)
+                        foreach (var createUser in inputTestData.Api.Users.CreateUser)
                         {
-                            yield return new TestCaseData(getAllUsers, inputTestData.Api.Users.GetUserByUuid);
+                            yield return new TestCaseData(createUser, inputTestData.Api.Users.GetUserByPassAndEmail);
                         }
                     }
-                }
 
-                public static IEnumerable<TestCaseData> CreateDeleteGetByUuidData
-                {
-                    get
+                    if (apiTaskIds.SequenceEqual(new ApiTaskId[] { ApiTaskId.Create, ApiTaskId.Delete, ApiTaskId.GetByUuid }))
                     {
                         foreach (var createUser in inputTestData.Api.Users.CreateUser)
                         {
                             yield return new TestCaseData(createUser, inputTestData.Api.Users.DeleteUser, inputTestData.Api.Users.GetUserByUuid);
                         }
                     }
-                }
 
-                public static IEnumerable<TestCaseData> GetAllGetByUuidDeleteData
-                {
-                    get
+                    if (apiTaskIds.SequenceEqual(new ApiTaskId[] { ApiTaskId.GetAll, ApiTaskId.GetByUuid, ApiTaskId.Delete }))
+
                     {
                         foreach (var getUsers in inputTestData.Api.Users.GetAllUsers)
                         {
                             yield return new TestCaseData(getUsers, inputTestData.Api.Users.GetUserByUuid, inputTestData.Api.Users.DeleteUser);
                         }
                     }
-                }
 
-                public static IEnumerable<TestCaseData> CreateGetByPassEmailData
-                {
-                    get
+                    if (apiTaskIds.SequenceEqual(new ApiTaskId[] { ApiTaskId.GetAll }))
                     {
-                        foreach (var createUser in inputTestData.Api.Users.CreateUser)
+                        foreach (var data in inputTestData.Api.Users.GetAllUsers)
                         {
-                            yield return new TestCaseData(createUser, inputTestData.Api.Users.GetUserByPassAndEmail);
+                            yield return new TestCaseData(data);
+                        }
+                    }
+
+                    if (apiTaskIds.SequenceEqual(new ApiTaskId[] { ApiTaskId.Create }))
+                    {
+                        foreach (var data in inputTestData.Api.Users.CreateUser)
+                        {
+                            yield return new TestCaseData(data);
+                        }
+                    }
+
+                    if (apiTaskIds.SequenceEqual(new ApiTaskId[] { ApiTaskId.Update }))
+                    {
+                        foreach (var data in inputTestData.Api.Users.UpdateUser)
+                        {
+                            yield return new TestCaseData(data);
                         }
                     }
                 }
