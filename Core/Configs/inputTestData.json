@@ -1,21 +1,72 @@
 {
   "api": {
     "users": {
-      "getallusers": [
+      "get_all_users": [
         "api-6",
         "api-21"
       ],
-      "createuser": [
+      "create_user": [
         "api-3",
         "api-22"
       ],
-      "updateuser": [
+      "update_user": [
         "api-4",
         "api-24"
       ],
-      "getuserbyuuid": "api-23",
-      "deleteuser": "api-1",
-      "getuserbypassandemail": "api-7"
+      "get_user_by_uuid": "api-23",
+      "delete_user": "api-1",
+      "get_user_by_pass_and_email": "api-7"
     }
+  },
+  "users_limit": 20,
+  "response_errors": {
+    "unprocessable_entity": {
+      "message": "",
+      "code": "422"
+    },
+    "bad_request": {
+      "message": "",
+      "code": "400"
+    },
+    "not_found": {
+      "message": "",
+      "code": "404"
+    },
+    "messages": {
+      "nullable": "Value is not nullable",
+      "minimum_string_length": "minimum string length is 5",
+      "users_limit": "Users limit is reached: 20",
+      "maximum_string_length": "maximum string length is 100",
+      "not_match_expression": "string doesn't match the regular expression",
+      "missed_email": "property \"email\" is missing",
+      "no_user_with_uuid": "Could not find user with \"uuid\"",
+      "uuid_min_length": "parameter \"user_uuid\" in path has an error: minimum string length is 36",
+      "uuid_max_length": "parameter \"user_uuid\" in path has an error: maximum string length is 36"
+    }
+  },
+  "response_success": {
+    "ok": {
+      "message": "",
+      "code": "200"
+    },
+    "no_content": {
+      "message": "",
+      "code": "204"
+    }
+  },
+  "general_data": {
+    "password_length_min": "6",
+    "password_length_max": "100",
+    "nickname_length_min": "2",
+    "nickname_length_max": "100",
+    "name_length_min": "1",
+    "name_length_max": "100",
+    "email_length_min": "5",
+    "email_length_max": "100",
+    "uuid_length": "36",
+    "all_characters": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=",
+    "correct_email_pattern": "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$",
+    "incorrect_email_pattern": "^[!@#$%^&*()]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$",
+    "correct_uuid_pattern": "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}"
   }
 }

@@ -5,9 +5,12 @@ using static QAHackathon.Core.BussnessLogic.StepsBL;
 
 namespace QAHackathon.BussnessObjects.Services
 {
+    /// <summary>
+    /// Setup service for setup tests. This offers services to setup API, clean DB and get status of API server
+    /// </summary>
     public class SetupService : BaseService
     {
-        private static string endpointSetup = baseEndpoint + "setup";
+        private static string endpointSetup = BaseEndpoint + "setup";
 
         public SetupService(BaseApiClient apiClient) : base(apiClient) { }
 

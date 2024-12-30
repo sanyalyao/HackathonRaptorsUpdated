@@ -26,10 +26,34 @@ namespace QAHackathon.Core.LoggingLogic
             }
         }
 
-        public void Info(string text) => logger.Info(text);
-        public void Error(Exception exception) => logger.Info(exception);
-        public void Error(string text) => logger.Error(text);
-        public void Trace(string text) => logger.Trace(text);
+        public void Info(string text)
+        {
+            using (ScopeContext.PushProperty("RequestId", Guid))
+            {
+                logger.Info(text);
+            }
+        }
+        public void Error(Exception exception)
+        {
+            using (ScopeContext.PushProperty("RequestId", Guid))
+            {
+                logger.Info(exception);
+            }
+        }
+        public void Error(string text)
+        {
+            using (ScopeContext.PushProperty("RequestId", Guid))
+            {
+                logger.Error(text);
+            }
+        }
+        public void Trace(string text)
+        {
+            using (ScopeContext.PushProperty("RequestId", Guid))
+            {
+                logger.Trace(text);
+            }
+        }
 
         public void GenerateGuid()
         {

@@ -3,26 +3,32 @@ using QAHackathon.Core.LoggingLogic;
 
 namespace QAHackathon.BussinesObjects.Models
 {
+    /// <summary>
+    /// User structure from response
+    /// </summary>
     [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
-    public partial class UserModel
+    public class UserModel
     {
         private LoggingBL loggingBL = LoggingBL.Instance;
 
-        [JsonProperty("avatar_url")]
+        [JsonProperty("avatar_url")]        
         public int AvatarUrl { get; set; }
 
         [JsonProperty("email")]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
         [JsonProperty("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         [JsonProperty("nickname")]
-        public string Nickname { get; set; }
+        public string? Nickname { get; set; }
 
         [JsonProperty("uuid")]
-        public string Uuid { get; set; }
+        public string? Uuid { get; set; }
 
+        /// <summary>
+        /// Show all user data
+        /// </summary>
         public void Show()
         {
             loggingBL.Info($"User: " +

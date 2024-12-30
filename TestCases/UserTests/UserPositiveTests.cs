@@ -1,9 +1,15 @@
 ﻿using Allure.Net.Commons;
 using NUnit.Allure.Attributes;
 using NUnit.Framework;
+using QAHackathon.BussinesObjects.Models;
+using QAHackathon.BussnessObjects.Models;
 using QAHackathon.BussnessObjects.Utils;
 using QAHackathon.Core.BussnessLogic;
+using QAHackathon.Core.RunSettings;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using static QAHackathon.Core.BussnessLogic.StepsBL;
+using static QAHackathon.Core.RunSettings.TestDataBL;
 
 namespace QAHackathon.TestCases.UserTests
 {
@@ -15,11 +21,8 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Positive")]
-        [TestCaseSource(typeof(Api.Users),
-            nameof(Api.Users.GetTestData),
-            new object[] { new ApiTaskId[] { ApiTaskId.GetAll } })]
         [AllureSeverity(SeverityLevel.critical)]
-        public void GetUsers(string taskId)
+        public void GetUsers([ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.GetAllTaskId))] string taskId)
         {
             var test = taskId;
 
@@ -43,11 +46,8 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Positive")]
-        [TestCaseSource(typeof(Api.Users),
-            nameof(Api.Users.GetTestData),
-            new object[] { new ApiTaskId[] { ApiTaskId.GetAll } })]
         [AllureSeverity(SeverityLevel.critical)]
-        public void GetUsersWithLimit(string taskId)
+        public void GetUsersWithLimit([ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.GetAllTaskId))] string taskId)
         {
             var users = Step("Getting all users", () =>
             {
@@ -56,7 +56,7 @@ namespace QAHackathon.TestCases.UserTests
 
             var listUserWith = Step("Getting all users with limit", () =>
             {
-                return userService.GetUsers(users.Meta.Total, taskId);
+                return userService.GetUsers(users.Meta.Total.Value, taskId);
             });
 
             Step("Checking for response with limit is correct", () =>
@@ -75,11 +75,9 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Positive")]
-        [TestCaseSource(typeof(Api.Users),
-            nameof(Api.Users.GetTestData),
-            new object[] { new ApiTaskId[] { ApiTaskId.GetAll, ApiTaskId.GetByUuid } })]
         [AllureSeverity(SeverityLevel.critical)]
-        public void GetRandomUserByUuid(string getAllTaskId, string getByUuidTaskId)
+        public void GetRandomUserByUuid([ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.GetAllTaskId))] string getAllTaskId,
+            [ValueSource(typeof(TestDataBL.Users), "GetByUuidTaskId")] string getByUuidTaskId)
         {
             var users = Step("Getting all users", () =>
             {
@@ -102,11 +100,10 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Positive")]
-        [TestCaseSource(typeof(Api.Users),
-            nameof(Api.Users.GetTestData),
-            new object[] { new ApiTaskId[] { ApiTaskId.Create, ApiTaskId.Delete, ApiTaskId.GetByUuid } })]
         [AllureSeverity(SeverityLevel.critical)]
-        public void DeleteUser(string createTaskId, string deleteTaskId, string getByUuidTaskId)
+        public void DeleteUser([ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.CreateTaskId))] string createTaskId,
+            [ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.DeleteTaskId))] string deleteTaskId,
+            [ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.GetByUuidTaskId))] string getByUuidTaskId)
         {
             var userForDeleting = Step("Generating a new user with random parameters", () =>
             {
@@ -135,11 +132,12 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Positive")]
-        [TestCaseSource(typeof(Api.Users),
-            nameof(Api.Users.GetTestData),
-            new object[] { new ApiTaskId[] { ApiTaskId.GetAll, ApiTaskId.GetByUuid, ApiTaskId.Delete } })]
+        [Order(1)]
         [AllureSeverity(SeverityLevel.critical)]
-        public void DeleteRandomUser(string getTaskId, string getByUuidTaskId, string deleteTaskId)
+        public void DeleteRandomUser([ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.GetAllTaskId))] string getTaskId,
+            [ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.GetByUuidTaskId))] string getByUuidTaskId,
+            [ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.DeleteTaskId))] string deleteTaskId,
+            [ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.CreateTaskId))] string createTaskId)
         {
             var users = Step("Getting all users", () =>
             {
@@ -147,6 +145,37 @@ namespace QAHackathon.TestCases.UserTests
             });
 
             var usersCount = users.Meta.Total;
+
+            if (usersCount.Value == 0)
+            {
+                loggingBL.Info("There are no users");
+
+                Step("Creating a new user", () => 
+                {
+                    var generatedUser = Step("Generating a new user with random parameters", () =>
+                    {
+                        var generatedUser = UserGenerator.GetNewUser();
+
+                        generatedUser.Show();
+
+                        return generatedUser;
+                    });
+
+                    Step("Creating the new user", () =>
+                    {
+                        var createdUser = userService.CreateNewUser(generatedUser, createTaskId);
+
+                        createdUser.Show();
+                    });
+                });
+
+                users = Step("Getting all users", () =>
+                {
+                    return userService.GetUsers(getTaskId);
+                });
+
+                usersCount = users.Meta.Total;
+            }
 
             var deletedUser = Step("Deleting random user", () =>
             {
@@ -178,11 +207,9 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Positive")]
-        [TestCaseSource(typeof(Api.Users),
-            nameof(Api.Users.GetTestData),
-            new object[] { new ApiTaskId[] { ApiTaskId.Create } })]
+        [Order(2)]
         [AllureSeverity(SeverityLevel.critical)]
-        public void CreateUser(string taskId)
+        public void CreateUser([ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.CreateTaskId))] string taskId)
         {
             var generatedUser = Step("Generating a new user with random parameters", () =>
             {
@@ -218,11 +245,9 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Positive")]
-        [TestCaseSource(typeof(Api.Users),
-            nameof(Api.Users.GetTestData),
-            new object[] { new ApiTaskId[] { ApiTaskId.GetAll, ApiTaskId.Update} })]
         [AllureSeverity(SeverityLevel.critical)]
-        public void UpdateUser(string getAllTaskId, string updateTeskId)
+        public void UpdateUser([ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.GetAllTaskId))] string getAllTaskId,
+            [ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.UpdateTaskId))] string updateTeskId)
         {
             var currentUser = Step("Getting random user", () =>
             {
@@ -274,11 +299,9 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Positive")]
-        [TestCaseSource(typeof(Api.Users),
-            nameof(Api.Users.GetTestData),
-            new object[] { new ApiTaskId[] { ApiTaskId.Create, ApiTaskId.GetByPassEmail } })]
         [AllureSeverity(SeverityLevel.critical)]
-        public void GetUserByPasswordAndEmail(string createTaskId, string getByPassEmailTaskId)
+        public void GetUserByPasswordAndEmail([ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.CreateTaskId))] string createTaskId,
+            [ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.GetUserByPassAndEmailTaskId))] string getByPassEmailTaskId)
         {
             var newUser = Step("Creating a new user", () =>
             {

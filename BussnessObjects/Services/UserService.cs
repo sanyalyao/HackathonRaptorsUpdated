@@ -4,9 +4,9 @@ using QAHackathon.BussinesObjects.Models;
 using QAHackathon.BussnessObjects.Models;
 using QAHackathon.Core.BussnessLogic;
 using QAHackathon.Core.RestCore;
+using QAHackathon.Core.RunSettings;
 using RestSharp;
 using static QAHackathon.Core.BussnessLogic.StepsBL;
-using static QAHackathon.Core.RestCore.HttpStatusCodes;
 
 namespace QAHackathon.BussinesObjects.Services
 {
@@ -14,10 +14,13 @@ namespace QAHackathon.BussinesObjects.Services
     {
         public UserService(BaseApiClient apiClient) : base(apiClient) { }
 
-        private static string endpointAllUsers = baseEndpoint + "users";
+        private static string endpointAllUsers = BaseEndpoint + "users";
         private static string endpointAllUsersWithLimit = endpointAllUsers;
         private string endpointUserByUuid = endpointAllUsers + "/{uuid}";
-        private string endpointUserLogin = endpointAllUsers + "/login";        
+        private string endpointUserLogin = endpointAllUsers + "/login";
+
+        private string endpointUserByUuidWithEmpty = endpointAllUsers + "/ ";
+
 
         [AllureStep("Get list of users")]
         public UsersModel GetUsers(string taskId)
@@ -73,7 +76,7 @@ namespace QAHackathon.BussinesObjects.Services
             var response = apiClient.ExecuteWithoutException(request);
             var error = new ErrorModel().GetError(response);
 
-            AssertBL.AreEqual((int)StatusCodes.NotFound, (int)response.StatusCode);
+            AssertBL.AreEqual(TestDataBL.InputTestData.ResponseErrors.NotFound.Code, (int)response.StatusCode);
             AssertBL.AreEqual(error.Code, (int)response.StatusCode);
 
             loggingBL.Info($"Status code: {(int)response.StatusCode} - {response.StatusCode}");
@@ -122,9 +125,21 @@ namespace QAHackathon.BussinesObjects.Services
 
             var response = apiClient.ExecuteWithoutException(request);
 
-            AssertBL.AreEqual((int)StatusCodes.NoContent, (int)response.StatusCode);
+            AssertBL.AreEqual(TestDataBL.InputTestData.ResponseSuccess.NoContent.Code, (int)response.StatusCode);
 
             loggingBL.Info($"User \"{uuid}\" is deleted");
+        }
+
+        [AllureStep("Delete user")]
+        public RestResponse DeleteUserWithoutException(string uuid, string taskId)
+        {
+            loggingBL.Info($"Deleting user with UUID - {uuid}");
+
+            var request = new RestRequest(endpointUserByUuid, Method.Delete).AddUrlSegment("uuid", uuid);
+
+            apiClient.AddOrUpdateXTaskId(request, taskId);
+
+            return apiClient.ExecuteWithoutException(request);
         }
 
         [AllureStep("Update user")]

@@ -5,7 +5,7 @@ using QAHackathon.BussinesObjects.Models;
 using QAHackathon.BussnessObjects.Models;
 using QAHackathon.BussnessObjects.Utils;
 using QAHackathon.Core.BussnessLogic;
-using QAHackathon.Core.RestCore;
+using QAHackathon.Core.RunSettings;
 using RestSharp;
 using System.Text.RegularExpressions;
 using static QAHackathon.Core.BussnessLogic.StepsBL;
@@ -20,13 +20,10 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Negative")]
-        [TestCaseSource(typeof(Api.Users),
-            nameof(Api.Users.GetTestData),
-            new object[] { new ApiTaskId[] { ApiTaskId.Update } })]
         [AllureSeverity(SeverityLevel.critical)]
-        public void UpdateNonExistentUser(string taskId)
+        public void UpdateNonExistentUser([ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.UpdateTaskId))] string taskId)
         {
-            var user =  Step("Generating a user with fake UUID", () => 
+            var user = Step("Generating a user with fake UUID", () =>
             {
                 var user = new UserModel()
                 {
@@ -54,7 +51,7 @@ namespace QAHackathon.TestCases.UserTests
                 var error = new ErrorModel().GetError(response);
                 var isMatch = new Regex($"Could not find user with \"uuid\": {user.Uuid}").Match(error.Message);
 
-                AssertBL.AreEqual((int)HttpStatusCodes.StatusCodes.NotFound, (int)response.StatusCode);
+                AssertBL.AreEqual(TestDataBL.InputTestData.ResponseErrors.NotFound.Code, (int)response.StatusCode);
                 AssertBL.IsFalse(response.IsSuccessful);
                 AssertBL.IsTrue(isMatch.Success);
 
@@ -68,11 +65,9 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Negative")]
-        [TestCaseSource(typeof(Api.Users),
-            nameof(Api.Users.GetTestData),
-            new object[] { new ApiTaskId[] { ApiTaskId.GetAll, ApiTaskId.Create } })]
         [AllureSeverity(SeverityLevel.critical)]
-        public void GetUserNotByPasswordAndEmail(string getAllTaskId, string createTaskId)
+        public void GetUserNotByPasswordAndEmail([ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.GetAllTaskId))] string getAllTaskId,
+            [ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.CreateTaskId))] string createTaskId)
         {
             var currentUser = Step("Creating a new user", () =>
             {
@@ -91,9 +86,9 @@ namespace QAHackathon.TestCases.UserTests
             Step("Checking for error in response", () =>
             {
                 var error = new ErrorModel().GetError(response);
-                var isMatch = new Regex(".*property \"email\" is missing.*").Match(error.Message);
+                var isMatch = new Regex($@".*{TestDataBL.InputTestData.ResponseErrors.Messages.MissedEmail}.*").Match(error.Message);
 
-                AssertBL.AreEqual((int)HttpStatusCodes.StatusCodes.BadRequest, (int)response.StatusCode);
+                AssertBL.AreEqual(TestDataBL.InputTestData.ResponseErrors.BadRequest.Code, (int)response.StatusCode);
                 AssertBL.IsFalse(response.IsSuccessful);
                 AssertBL.IsTrue(isMatch.Success);
 
@@ -107,18 +102,15 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Negative")]
-        [TestCaseSource(typeof(Api.Users),
-            nameof(Api.Users.GetTestData),
-            new object[] { new ApiTaskId[] { ApiTaskId.Create } })]
         [AllureSeverity(SeverityLevel.critical)]
-        public void CreateUserWithIncorrectEmailFormat(string taskId)
+        public void CreateUserWithIncorrectEmailFormat([ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.CreateTaskId))] string taskId)
         {
-            var userIncorrectEmail = Step("Generating fake user with incorrect email format", () => 
+            var userIncorrectEmail = Step("Generating fake user with incorrect email format", () =>
             {
                 return UserGenerator.GetNewUserWithIncorrectEmailFormat();
-            });            
+            });
 
-            var response = Step("Registering a new user with incorrect email", () => 
+            var response = Step("Registering a new user with incorrect email", () =>
             {
                 return userService.CreateNewUserWithoutException(userIncorrectEmail, taskId);
             });
@@ -126,9 +118,9 @@ namespace QAHackathon.TestCases.UserTests
             Step("Checking for error in response", () =>
             {
                 var error = new ErrorModel().GetError(response);
-                var isMatch = new Regex(".*string doesn't match the regular expression.*").Match(error.Message);
+                var isMatch = new Regex($@".*{TestDataBL.InputTestData.ResponseErrors.Messages.NotMatchExpression}.*").Match(error.Message);
 
-                AssertBL.AreEqual((int)HttpStatusCodes.StatusCodes.BadRequest, (int)response.StatusCode);
+                AssertBL.AreEqual(TestDataBL.InputTestData.ResponseErrors.BadRequest.Code, (int)response.StatusCode);
                 AssertBL.IsFalse(response.IsSuccessful);
                 AssertBL.IsTrue(isMatch.Success);
 
@@ -142,11 +134,8 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Negative")]
-        [TestCaseSource(typeof(Api.Users),
-            nameof(Api.Users.GetTestData),
-            new object[] { new ApiTaskId[] { ApiTaskId.Create } })]
         [AllureSeverity(SeverityLevel.critical)]
-        public void CreateUserWithIncorrectMaxEmailLength(string taskId)
+        public void CreateUserWithIncorrectMaxEmailLength([ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.CreateTaskId))] string taskId)
         {
             var userIncorrectEmailMaxLength = Step("Generating fake users with incorrect max email length", () =>
             {
@@ -161,9 +150,9 @@ namespace QAHackathon.TestCases.UserTests
             Step("Checking for error in response", () =>
             {
                 var error = new ErrorModel().GetError(response);
-                var isMatch = new Regex(".*maximum string length is 100.*").Match(error.Message);
+                var isMatch = new Regex($@".*{TestDataBL.InputTestData.ResponseErrors.Messages.MaximumStringLength}.*").Match(error.Message);
 
-                AssertBL.AreEqual((int)HttpStatusCodes.StatusCodes.BadRequest, (int)response.StatusCode);
+                AssertBL.AreEqual(TestDataBL.InputTestData.ResponseErrors.BadRequest.Code, (int)response.StatusCode);
                 AssertBL.IsFalse(response.IsSuccessful);
                 AssertBL.IsTrue(isMatch.Success);
 
@@ -177,11 +166,8 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Negative")]
-        [TestCaseSource(typeof(Api.Users),
-            nameof(Api.Users.GetTestData),
-            new object[] { new ApiTaskId[] { ApiTaskId.Create } })]
         [AllureSeverity(SeverityLevel.critical)]
-        public void CreateUserWithEmptyEmailLength(string taskId)
+        public void CreateUserWithEmptyEmailLength([ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.CreateTaskId))] string taskId)
         {
             var userIncorrectEmailMinLength = Step("Generating fake users with empty email", () =>
             {
@@ -201,9 +187,9 @@ namespace QAHackathon.TestCases.UserTests
             Step("Checking for error in response", () =>
             {
                 var error = new ErrorModel().GetError(response);
-                var isMatch = new Regex(".*minimum string length is 5.*").Match(error.Message);
+                var isMatch = new Regex($@".*{TestDataBL.InputTestData.ResponseErrors.Messages.MinimumStringLength}.*").Match(error.Message);
 
-                AssertBL.AreEqual((int)HttpStatusCodes.StatusCodes.BadRequest, (int)response.StatusCode);
+                AssertBL.AreEqual(TestDataBL.InputTestData.ResponseErrors.BadRequest.Code, (int)response.StatusCode);
                 AssertBL.IsFalse(response.IsSuccessful);
                 AssertBL.IsTrue(isMatch.Success);
 
@@ -217,11 +203,8 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Negative")]
-        [TestCaseSource(typeof(Api.Users),
-            nameof(Api.Users.GetTestData),
-            new object[] { new ApiTaskId[] { ApiTaskId.Create } })]
         [AllureSeverity(SeverityLevel.critical)]
-        public void CreateUserWithNullEmail(string taskId)
+        public void CreateUserWithNullEmail([ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.CreateTaskId))] string taskId)
         {
             var userIncorrectEmailMinLength = Step("Generating fake users with null email", () =>
             {
@@ -241,9 +224,9 @@ namespace QAHackathon.TestCases.UserTests
             Step("Checking for error in response", () =>
             {
                 var error = new ErrorModel().GetError(response);
-                var isMatch = new Regex(".*Value is not nullable.*").Match(error.Message);
+                var isMatch = new Regex($@".*{TestDataBL.InputTestData.ResponseErrors.Messages.Nullable}.*").Match(error.Message);
 
-                AssertBL.AreEqual((int)HttpStatusCodes.StatusCodes.BadRequest, (int)response.StatusCode);
+                AssertBL.AreEqual(TestDataBL.InputTestData.ResponseErrors.BadRequest.Code, (int)response.StatusCode);
                 AssertBL.IsFalse(response.IsSuccessful);
                 AssertBL.IsTrue(isMatch.Success);
 
@@ -257,11 +240,8 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Negative")]
-        [TestCaseSource(typeof(Api.Users),
-            nameof(Api.Users.GetTestData),
-            new object[] { new ApiTaskId[] { ApiTaskId.Create } })]
         [AllureSeverity(SeverityLevel.critical)]
-        public void CreateUserWithIncorrectMinEmailLength(string taskId)
+        public void CreateUserWithIncorrectMinEmailLength([ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.CreateTaskId))] string taskId)
         {
             var userIncorrectEmailMinLength = Step("Generating fake users with incorrect min email length", () =>
             {
@@ -280,9 +260,9 @@ namespace QAHackathon.TestCases.UserTests
             Step("Checking for error in response", () =>
             {
                 var error = new ErrorModel().GetError(response);
-                var isMatch = new Regex(".*minimum string length is 5.*").Match(error.Message);
+                var isMatch = new Regex($@".*{TestDataBL.InputTestData.ResponseErrors.Messages.MinimumStringLength}.*").Match(error.Message);
 
-                AssertBL.AreEqual((int)HttpStatusCodes.StatusCodes.BadRequest, (int)response.StatusCode);
+                AssertBL.AreEqual(TestDataBL.InputTestData.ResponseErrors.BadRequest.Code, (int)response.StatusCode);
                 AssertBL.IsFalse(response.IsSuccessful);
                 AssertBL.IsTrue(isMatch.Success);
 
@@ -296,11 +276,8 @@ namespace QAHackathon.TestCases.UserTests
         [Category("API")]
         [Category("Users")]
         [Category("Negative")]
-        [TestCaseSource(typeof(Api.Users), 
-            nameof(Api.Users.GetTestData),
-            new object[] { new ApiTaskId[] { ApiTaskId.GetAll } })]
         [AllureSeverity(SeverityLevel.critical)]
-        public void UpdateUserWithIncorrectData(string taskId)
+        public void UpdateUserWithIncorrectData([ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.GetAllTaskId))] string taskId)
         {
             var responses = Step("Updating a user with incorrect null data", () =>
             {
@@ -326,7 +303,7 @@ namespace QAHackathon.TestCases.UserTests
                     { "password", null }
                 };
 
-                var responses = new List<RestResponse>() { 
+                var responses = new List<RestResponse>() {
                     userService.UpdateUserWithoutException(currentUser, userWithNullName, taskId),
                     userService.UpdateUserWithoutException(currentUser, userWithNullNickname, taskId),
                     userService.UpdateUserWithoutException(currentUser, userWithNullEmail, taskId),
@@ -340,15 +317,265 @@ namespace QAHackathon.TestCases.UserTests
                 foreach (var response in responses)
                 {
                     var error = new ErrorModel().GetError(response);
-                    var isMatch = new Regex(".*Value is not nullable.*").Match(error.Message);
+                    var isMatch = new Regex($@".*{TestDataBL.InputTestData.ResponseErrors.Messages.Nullable}.*").Match(error.Message);
 
-                    AssertBL.AreEqual((int)HttpStatusCodes.StatusCodes.BadRequest, (int)response.StatusCode);
+                    AssertBL.AreEqual(TestDataBL.InputTestData.ResponseErrors.BadRequest.Code, (int)response.StatusCode);
                     AssertBL.IsFalse(response.IsSuccessful);
                     AssertBL.IsTrue(isMatch.Success);
 
                     loggingBL.Info($"There is error in each response: {error.Code}");
                     loggingBL.Info(error.Message);
                 }
+            });
+        }
+
+        [Test]
+        [Description("Check users limit. Checking for error response")]
+        [Category("API")]
+        [Category("Users")]
+        [Category("Negative")]
+        [AllureSeverity(SeverityLevel.critical)]
+        public void CheckUsersLimit([ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.GetAllTaskId))] string getAllTaskId,
+            [ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.CreateTaskId))] string createTaskId)
+        {
+            var usersLimit = TestDataBL.InputTestData.UsersLimit;
+
+            var usersAmount = Step("Gettings amount of users", () =>
+            {
+                var usersAmount = userService.GetUsers(getAllTaskId).Meta.Total.Value;
+
+                loggingBL.Info($"Users limit is {usersAmount}");
+
+                return usersAmount;
+            });
+
+            if (usersLimit != usersAmount)
+            {
+                var usersData = Step("Generating users data collection", () =>
+                {
+                    var usersData = new List<User>();
+
+                    for (int i = usersAmount; i < usersLimit; i++)
+                    {
+                        usersData.Add(UserGenerator.GetNewUser());
+                    }
+
+                    loggingBL.Info("Users data is ready");
+
+                    return usersData;
+                });
+
+                Step("Registering new users and checking new users amount", () =>
+                {
+                    foreach (var user in usersData)
+                    {
+                        userService.CreateNewUser(user, createTaskId);
+                    }
+
+                    var currentUsersAmount = userService.GetUsers(getAllTaskId).Meta.Total;
+
+                    AssertBL.AreEqual(usersLimit, currentUsersAmount);
+
+                    loggingBL.Info("Users are ready");
+                });
+            }
+
+            var response = Step("Getting error from registration one more user", () => 
+            {
+                var currentUsersAmount = userService.GetUsers(getAllTaskId).Meta.Total;
+
+                loggingBL.Info($"Current users amount = {currentUsersAmount}");
+                loggingBL.Info("Registering a new user");
+
+                var newUser = UserGenerator.GetNewUser();
+                var response = userService.CreateNewUserWithoutException(newUser, createTaskId);
+
+                return response;
+            });
+
+            Step("Checking for error in responses", () =>
+            {
+                var error = new ErrorModel().GetError(response);
+                var isMatch = new Regex($@".*{TestDataBL.InputTestData.ResponseErrors.Messages.UsersLimit}.*").Match(error.Message);
+
+                AssertBL.AreEqual(TestDataBL.InputTestData.ResponseErrors.UnprocessableEntity.Code, (int)response.StatusCode);
+                AssertBL.IsFalse(response.IsSuccessful);
+                AssertBL.IsTrue(isMatch.Success);
+
+                loggingBL.Info($"There is error in each response: {error.Code}");
+                loggingBL.Info(error.Message);
+            });
+        }
+
+        [Test]
+        [Description("Check if list of users is empty, when all users was deleted. Checking for error in response")]
+        [Category("API")]
+        [Category("Users")]
+        [Category("Negative")]
+        [AllureSeverity(SeverityLevel.critical)]
+        public void CheckEmptyListOfUsers([ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.DeleteTaskId))] string deleteTaskId, 
+            [ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.GetAllTaskId))] string getAllTaskId)
+        {
+            var users = Step("Getting all users", () =>
+            {
+                return userService.GetUsers(getAllTaskId);
+            });
+
+            var usersCount = users.Meta.Total;
+
+            if (usersCount != 0)
+            {
+                loggingBL.Info("There are users");
+                loggingBL.Info("Initializing the process of deleting all users");
+
+                for (int i = 0; i < usersCount; i++)
+                {
+                    Step("Deleting random user", () =>
+                    {
+                        var randomUser = users.Users.ToList()[new Random().Next(users.Users.Count)];
+
+                        userService.DeleteUser(randomUser.Uuid, deleteTaskId);
+                    });
+                }
+            }
+
+            loggingBL.Info("There are no users");
+            loggingBL.Info("Initializing the process of deleting a user");
+
+            var randomUuid = UtilsBL.GetRandomUuid();
+
+            var response = Step("Deleting a user with random UUID", () =>
+            {
+                return userService.DeleteUserWithoutException(randomUuid, deleteTaskId);
+            });
+
+            Step("Checking for error in response", () =>
+            {
+                var error = new ErrorModel().GetError(response);
+                var isMatch = new Regex($@"{TestDataBL.InputTestData.ResponseErrors.Messages.NoUserWithUuid}: {randomUuid}").Match(error.Message);
+
+                AssertBL.AreEqual(TestDataBL.InputTestData.ResponseErrors.NotFound.Code, (int)response.StatusCode);
+                AssertBL.IsFalse(response.IsSuccessful);
+                AssertBL.IsTrue(isMatch.Success);
+
+                loggingBL.Info($"There is error in response: {error.Code}");
+                loggingBL.Info(error.Message);
+            });
+        }
+
+        [Test]
+        [Description("Initialize deleting a user, using short uuid. Checking for error in response")]
+        [Category("API")]
+        [Category("Users")]
+        [Category("Negative")]
+        [AllureSeverity(SeverityLevel.critical)]
+        public void DeleteUserUuidWithShortLength([ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.DeleteTaskId))] string deleteTaskId,
+    [ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.GetAllTaskId))] string getAllTaskId)
+        {
+            var correctUuidLength = TestDataBL.InputTestData.GeneralData.UuidLength;
+            var shortUuidLength = TestDataBL.InputTestData.GeneralData.UuidLength - 1;
+            var shortUuid = UtilsBL.GetRandomUuid().Remove(shortUuidLength);
+
+            var users = Step("Getting all users", () =>
+            {
+                return userService.GetUsers(getAllTaskId);
+            });
+
+            var usersCount = users.Meta.Total;
+
+            if (usersCount != 0)
+            {
+                loggingBL.Info("There are users");
+                loggingBL.Info("Initializing the process of deleting all users");
+
+                for (int i = 0; i < usersCount; i++)
+                {
+                    Step("Deleting random user", () =>
+                    {
+                        var randomUser = users.Users.ToList()[new Random().Next(users.Users.Count)];
+
+                        userService.DeleteUser(randomUser.Uuid, deleteTaskId);
+                    });
+                }
+            }
+
+            loggingBL.Info("There are no users");
+            loggingBL.Info("Initializing the process of deleting a user");
+
+            var response = Step($"Deleting a user, using uuid legnth {shortUuidLength} instead of {correctUuidLength}", () =>
+            {
+                return userService.DeleteUserWithoutException(shortUuid, deleteTaskId);
+            });
+
+            Step("Checking for error in response", () =>
+            {
+                var error = new ErrorModel().GetError(response);
+                var isMatch = new Regex(TestDataBL.InputTestData.ResponseErrors.Messages.UuidMinLength).Match(error.Message);
+
+                AssertBL.AreEqual(TestDataBL.InputTestData.ResponseErrors.BadRequest.Code, (int)response.StatusCode);
+                AssertBL.IsFalse(response.IsSuccessful);
+                AssertBL.IsTrue(isMatch.Success);
+
+                loggingBL.Info($"There is error in response: {error.Code}");
+                loggingBL.Info(error.Message);
+            });
+        }
+
+        [Test]
+        [Description("Initialize deleting a user, using long uuid. Checking for error in response")]
+        [Category("API")]
+        [Category("Users")]
+        [Category("Negative")]
+        [AllureSeverity(SeverityLevel.critical)]
+        public void DeleteUserUuidWithLongLength([ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.DeleteTaskId))] string deleteTaskId,
+            [ValueSource(typeof(TestDataBL.Users), nameof(TestDataBL.Users.GetAllTaskId))] string getAllTaskId)
+        {
+            var correctUuidLength = TestDataBL.InputTestData.GeneralData.UuidLength;
+            var longUuidLength = TestDataBL.InputTestData.GeneralData.UuidLength + 1;
+            var longUuid = UtilsBL.GetRandomUuid() + "T";
+
+            var users = Step("Getting all users", () =>
+            {
+                return userService.GetUsers(getAllTaskId);
+            });
+
+            var usersCount = users.Meta.Total;
+
+            if (usersCount != 0)
+            {
+                loggingBL.Info("There are users");
+                loggingBL.Info("Initializing the process of deleting all users");
+
+                for (int i = 0; i < usersCount; i++)
+                {
+                    Step("Deleting random user", () =>
+                    {
+                        var randomUser = users.Users.ToList()[new Random().Next(users.Users.Count)];
+
+                        userService.DeleteUser(randomUser.Uuid, deleteTaskId);
+                    });
+                }
+            }
+
+            loggingBL.Info("There are no users");
+            loggingBL.Info("Initializing the process of deleting a user");
+
+            var response = Step($"Deleting a user, using uuid length {longUuidLength} instead of {correctUuidLength}", () =>
+            {
+                return userService.DeleteUserWithoutException(longUuid, deleteTaskId);
+            });
+
+            Step("Checking for error in response", () =>
+            {
+                var error = new ErrorModel().GetError(response);
+                var isMatch = new Regex(TestDataBL.InputTestData.ResponseErrors.Messages.UuidMaxLength).Match(error.Message);
+
+                AssertBL.AreEqual(TestDataBL.InputTestData.ResponseErrors.BadRequest.Code, (int)response.StatusCode);
+                AssertBL.IsFalse(response.IsSuccessful);
+                AssertBL.IsTrue(isMatch.Success);
+
+                loggingBL.Info($"There is error in response: {error.Code}");
+                loggingBL.Info(error.Message);
             });
         }
     }

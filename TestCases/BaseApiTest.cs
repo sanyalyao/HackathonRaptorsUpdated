@@ -11,7 +11,7 @@ namespace QAHackathon.TestCases
         [OneTimeSetUp]
         public void Initial()
         {
-            apiClient = new BaseApiClient(baseEndpoint);
+            apiClient = new BaseApiClient(BaseEndpoint);
         }
     }
 }

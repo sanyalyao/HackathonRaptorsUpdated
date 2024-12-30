@@ -2,14 +2,14 @@
 {
     public class BaseSettings
     {
+        protected static string BaseEndpoint {  get; private set; }
+        protected static SetUpSettings Settings { get; private set; }
+
         private enum Environments
         {
             Release,
             Dev
         }
-
-        protected static SetUpSettings Settings;
-        protected static string baseEndpoint;
 
         protected BaseSettings()
         {
@@ -17,11 +17,11 @@
 
             if (Settings.environment == Environments.Release.ToString().ToLower())
             {
-                baseEndpoint = Settings.releaseEndpoint;
+                BaseEndpoint = Settings.releaseEndpoint;
             }
             else
             {
-                baseEndpoint = Settings.devEndpoint;
+                BaseEndpoint = Settings.devEndpoint;
             }
         }
     }

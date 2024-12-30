@@ -16,7 +16,7 @@ namespace QAHackathon.TestCases
         {
             var setup = Settings.GetSetupSettings();
 
-            if (baseEndpoint == Settings.releaseEndpoint && !setup.SetupEnvironmentRelease.IsSetup)
+            if (BaseEndpoint == Settings.releaseEndpoint && !setup.SetupEnvironmentRelease.IsSetup)
             {
                 setupService.Setup();
 
@@ -25,7 +25,7 @@ namespace QAHackathon.TestCases
                 Settings.ChangeSetupConfig(setup);
                 loggingBL.Info("Release environment is ready");
             }
-            else if (baseEndpoint == Settings.devEndpoint && !setup.SetupEnvironmentDev.IsSetup)
+            else if (BaseEndpoint == Settings.devEndpoint && !setup.SetupEnvironmentDev.IsSetup)
             {
                 setupService.Setup();
 

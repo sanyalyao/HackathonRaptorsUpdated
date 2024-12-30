@@ -1,5 +1,6 @@
 ﻿using Faker;
 using Fare;
+using QAHackathon.Core.RunSettings;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -7,24 +8,24 @@ namespace QAHackathon.BussnessObjects.Utils
 {
     public static class UtilsBL
     {
-        private static int passwordLengthMin = 6;
-        private static int passwordLengthMax = 100;
+        private static int passwordLengthMin = TestDataBL.InputTestData.GeneralData.PasswordLengthMin;
+        private static int passwordLengthMax = TestDataBL.InputTestData.GeneralData.PasswordLengthMax;
 
-        private static int nicknameLengthMin = 2;
-        private static int nicknameLengthMax = 100;
+        private static int nicknameLengthMin = TestDataBL.InputTestData.GeneralData.NicknameLengthMin;
+        private static int nicknameLengthMax = TestDataBL.InputTestData.GeneralData.NicknameLengthMax;
 
-        private static int nameLengthMin = 1;
-        private static int nameLengthMax = 100;
+        private static int nameLengthMin = TestDataBL.InputTestData.GeneralData.NameLengthMin;
+        private static int nameLengthMax = TestDataBL.InputTestData.GeneralData.NameLengthMax;
 
-        private static int emailLengthMin = 5;
-        private static int emailLengthMax = 100;
+        private static int emailLengthMin = TestDataBL.InputTestData.GeneralData.EmailLengthMin;
+        private static int emailLengthMax = TestDataBL.InputTestData.GeneralData.EmailLengthMax;
 
-        private static int uuidLength = 36;
+        private static string allCharacters = TestDataBL.InputTestData.GeneralData.AllCharacters;
 
-        private static string allCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=";
+        private static string correctEmailPattern = TestDataBL.InputTestData.GeneralData.CorrectEmailPattern;
+        private static string incorrectEmailPattern = TestDataBL.InputTestData.GeneralData.IncorrectEmailPattern;
 
-        private static string correctEmailPattern = @"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$";
-        private static string incorrectEmailPattern = @"^[!@#$%^&*()]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$";
+        private static string correctUuidPattern = TestDataBL.InputTestData.GeneralData.CorrectUuidPattern;
 
         public static string GetCorrectPassword() => GetPassword(passwordLengthMin, passwordLengthMax);
 
@@ -65,7 +66,7 @@ namespace QAHackathon.BussnessObjects.Utils
 
         public static string GetRandomUuid()
         {
-            var uuid = new Xeger("[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}");
+            var uuid = new Xeger(correctUuidPattern);
             return uuid.Generate().ToLower();
         }
 

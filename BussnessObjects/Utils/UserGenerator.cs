@@ -83,6 +83,8 @@ namespace QAHackathon.BussnessObjects.Utils
             return user;
         }
 
+        #region Private methods
+
         private static User GetUserIncorrectMaxEmailLength()
         {
             var user = new User(UtilsBL.GetIncorrectMaxEmailLength(),
@@ -92,6 +94,7 @@ namespace QAHackathon.BussnessObjects.Utils
 
             return user;
         }
+
         private static User GetUserIncorrectMinEmailLength()
         {
             var user = new User(UtilsBL.GetIncorrectMinEmailLength(),
@@ -101,5 +104,7 @@ namespace QAHackathon.BussnessObjects.Utils
 
             return user;
         }
+
+        #endregion
     }
 }
